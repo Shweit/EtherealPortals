@@ -1,156 +1,190 @@
-# EtherealPortals
+# Ethereal Portals
 
-A mystical portal plugin for Minecraft Paper servers that allows players to create custom portal groups for fast travel between locations.
+A mystical portal plugin for Minecraft that allows players to create custom portal groups for fast travel with stunning visual effects.
 
 ## Features
 
-- **Portal Groups**: Organize portals into groups for easy teleportation
-- **Visual Effects**: Beautiful purple particles and text displays above portals
-- **Smart Teleportation**:
-  - 2 portals in a group: Direct teleport to the other
-  - 3+ portals: GUI opens for destination selection
-- **Custom Icons**: Add custom skull textures for portals in the GUI
-- **Cooldown System**: Prevents teleport spam
+- **Portal Groups**: Organize portals into logical groups for seamless travel
+- **Smart Teleportation**: Automatic teleport between 2 portals, GUI selection for 3+ portals
+- **Custom Icons**: Use custom player head textures for portal icons in the GUI
+- **Visual Effects**: Beautiful particle spirals and floating text displays at portal locations
+- **Cooldown System**: Configurable teleportation cooldowns to prevent spam
+- **Flexible Hitbox**: Adjustable portal detection area (width, depth, height)
+- **Tab Completion**: Full tab completion for all commands including coordinates
+- **Permissions**: Granular permission system for all features
+- **Case-Sensitive Names**: Portal and group names preserve original capitalization
 - **World Support**: Teleport across different worlds (Overworld, Nether, End, etc.)
-- **Permission System**: Per-group permissions for access control
-- **Sound & Animation**: Teleport sounds and particle animations
-
-## Requirements
-
-- Minecraft Paper 1.21+ (or compatible fork)
-- Java 21
+- **Data Persistence**: Automatic saving and loading of portals and icons
 
 ## Installation
 
-1. Download the latest `EtherealPortals.jar` from releases
+1. Download the latest `EtherealPortals-1.0-all.jar` from the releases
 2. Place the JAR file in your server's `plugins` folder
-3. Restart your server
-4. Configure the plugin in `plugins/EtherealPortals/config.yml`
+3. Restart or reload your server
+4. Configure the plugin in `plugins/EtherealPortals/config.yml` if needed
+
+## Requirements
+
+- **Minecraft Version**: 1.21+ (Paper/Spigot)
+- **Java Version**: 17+
 
 ## Commands
 
-All commands start with `/portal` (aliases: `/portals`, `/ep`, `/etherealportals`)
+### Portal Groups
 
-### Group Management
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/portal group create <name>` | Create a new portal group | `portal.group.create` |
+| `/portal group delete <name>` | Delete a portal group | `portal.group.delete` |
+| `/portal group add <group> <name> <x> <y> <z> [world] [icon]` | Add a portal to a group | `portal.group.add` |
+| `/portal group remove <group> <name>` | Remove a portal from a group | `portal.group.remove` |
+| `/portal group list [group]` | List all groups or portals in a group | `portal.use` |
 
-| Command | Permission | Description |
-|---------|------------|-------------|
-| `/portal group create <name>` | `portal.group.create` | Create a new portal group |
-| `/portal group delete <name>` | `portal.group.delete` | Delete a portal group and all its portals |
-| `/portal group add <group> <name> <x> <y> <z> [icon]` | `portal.group.add` | Add a portal to a group (supports `~` for relative coordinates) |
-| `/portal group remove <group> <name>` | `portal.group.remove` | Remove a portal from a group |
+### Custom Icons
 
-**Coordinate Support:**
-- Absolute: `/portal group add Spawn Portal1 100 64 -50`
-- Relative: `/portal group add Spawn Portal2 ~ ~ ~` (current position)
-- Relative with offset: `/portal group add Spawn Portal3 ~5 ~-2 ~10`
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/portal icon add <name> <base64>` | Add a custom icon texture | `portal.icon.add` |
+| `/portal icon remove <name>` | Remove a custom icon | `portal.icon.remove` |
+| `/portal icon list` | View all custom icons in a GUI | `portal.icon.list` |
 
-### Icon Management
+### Coordinate Syntax
 
-| Command | Permission | Description |
-|---------|------------|-------------|
-| `/portal icon add <name> <base64>` | `portal.icon.add` | Add a custom icon |
-| `/portal icon remove <name>` | `portal.icon.remove` | Remove an icon |
-| `/portal icon list` | `portal.icon.list` | View all available icons (GUI) |
+When adding portals, you can use:
+- **Absolute coordinates**: `/portal group add cities spawn 100 64 200`
+- **Relative coordinates**: `/portal group add cities spawn ~ ~-1 ~` (relative to your position)
+- **Mixed coordinates**: `/portal group add cities spawn 100 ~ 200`
+
+Tab completion will suggest your current coordinates for convenience!
 
 ## Permissions
 
-| Permission | Default | Description |
-|------------|---------|-------------|
-| `portal.admin` | op | Grants all admin permissions |
-| `portal.use` | true | Allows using the /portal command |
-| `portal.group.create` | op | Create portal groups |
-| `portal.group.delete` | op | Delete portal groups |
-| `portal.group.add` | op | Add portals to groups |
-| `portal.group.remove` | op | Remove portals from groups |
-| `portal.icon.add` | op | Add custom icons |
-| `portal.icon.remove` | op | Remove icons |
-| `portal.icon.list` | op | View icon list |
-| `portal.group.use.<group>` | true | Use a specific portal group |
-| `portal.group.use.*` | true | Use all portal groups |
+| Permission | Description | Default |
+|------------|-------------|---------|
+| `portal.use` | Use portals and view lists | All players |
+| `portal.group.create` | Create portal groups | Op |
+| `portal.group.delete` | Delete portal groups | Op |
+| `portal.group.add` | Add portals to groups | Op |
+| `portal.group.remove` | Remove portals from groups | Op |
+| `portal.icon.add` | Add custom icons | Op |
+| `portal.icon.remove` | Remove custom icons | Op |
+| `portal.icon.list` | View icon list | Op |
 
 ## Configuration
 
-The config file (`config.yml`) allows you to customize:
-
-- **Teleportation**: Cooldown time, sounds, animations
-- **Visuals**: Particle type, density, text display color and size
-- **GUI**: Title, coordinate display, world display
-- **Messages**: All plugin messages are customizable
-
-### Example Config
+The plugin's configuration file is located at `plugins/EtherealPortals/config.yml`:
 
 ```yaml
-teleport:
-  cooldown: 3  # Seconds between teleports
-  sound-enabled: true
-  animation-enabled: true
-
-visuals:
-  particles:
-    enabled: true
-    type: PORTAL  # Recommended: PORTAL, END_ROD, WITCH, ENCHANT
-    density: 20
-  text-display:
-    enabled: true
-    color: "#C77DFF"  # Purple color (hex format)
-    offset-y: 3.0
-    scale: 1.5
+portal:
+  hitbox:
+    width: 2.0    # Portal detection width (blocks)
+    depth: 2.0    # Portal detection depth (blocks)
+    height: 2.0   # Portal detection height (blocks)
+  teleport:
+    cooldownSeconds: 3        # Seconds between teleports
+    messageCooldownSeconds: 1 # Seconds between cooldown messages
 ```
 
-**Note:** Some particle types like `DRAGON_BREATH` require additional data parameters. Stick to simple particles like `PORTAL`, `END_ROD`, `WITCH`, or `ENCHANT` for best results.
+## Usage Examples
 
-## Usage Example
+### Creating a Simple Portal Network
 
-### Creating a Portal Network
-
-1. **Create a group:**
+1. **Create a portal group**:
    ```
-   /portal group create Spawn
+   /portal group create cities
    ```
 
-2. **Add portals to the group:**
+2. **Add two portals** (one at spawn, one at a city):
    ```
-   /portal group add Spawn MainSpawn 0 64 0
-   /portal group add Spawn ShopSpawn 100 64 100
-   /portal group add Spawn FarmSpawn -50 64 50
+   /portal group add cities Spawn 0 64 0
+   /portal group add cities CityCenter 1000 70 500 world
    ```
 
-3. **Players walk into any portal in the "Spawn" group and can teleport to the others!**
+3. **Walk into either portal** to teleport directly to the other!
+
+### Creating a Multi-Portal Hub
+
+1. **Create a hub group**:
+   ```
+   /portal group create hub
+   ```
+
+2. **Add multiple destinations**:
+   ```
+   /portal group add hub Spawn 0 64 0
+   /portal group add hub Shopping 500 65 -200
+   /portal group add hub Arena -300 70 400
+   /portal group add hub Farm 200 64 800
+   ```
+
+3. **Walk into any portal** to see a GUI with all destinations!
 
 ### Using Custom Icons
 
-1. **Get a Base64 skull texture** from sites like minecraft-heads.com
+1. **Get a base64 texture** from a player head generator (e.g., minecraft-heads.com)
 
-2. **Add the icon:**
+2. **Add the custom icon**:
    ```
-   /portal icon add MyIcon <base64_value>
-   ```
-
-3. **Use it when creating a portal:**
-   ```
-   /portal group add Spawn FancyPortal 0 64 0 MyIcon
+   /portal icon add castle eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUv...
    ```
 
-## Portal Mechanics
+3. **Use it in a portal**:
+   ```
+   /portal group add kingdoms MainCastle 100 65 100 world castle
+   ```
 
-- **Hitbox**: Each portal has a 3-block-high hitbox (base block + 2 blocks up)
-- **Detection**: Portals detect players entering the hitbox
-- **Teleportation**:
-  - With 2 portals: Instant teleport to the other portal
-  - With 3+ portals: GUI opens for destination selection
-- **Cooldown**: Default 3 seconds (configurable)
+## How It Works
+
+### Portal Detection
+
+Portals are detected when a player enters the configured hitbox area around a portal's base location. The default hitbox is 2x2x2 blocks, but this can be adjusted in the config.
+
+### Teleportation Behavior
+
+- **2 Portals in Group**: Direct teleport to the other portal (0.5s delay)
+- **3+ Portals in Group**: Opens a GUI to select destination
+- **Cooldown**: Prevents repeated teleportation (configurable, default 3s)
+
+### Visual Effects
+
+- **Particle Spirals**: Animated END_ROD particles spiral around each portal
+- **Text Displays**: Floating portal names above each portal (3 blocks up)
+- **Teleport Effects**: Portal particles and enderman teleport sound on use
+- **Update Rate**: Visual effects update every second
+
+### Case Sensitivity
+
+Portal and group names are stored with their original capitalization, but lookups are case-insensitive. This means:
+- You can create a group called "MainHub" and it will display as "MainHub"
+- Commands like `/portal group list mainhub` will still work
+- Each portal name in a group must be unique (case-insensitive)
+
+## Data Storage
+
+All data is stored in JSON format:
+- **Portals**: `plugins/EtherealPortals/groups.json`
+- **Icons**: `plugins/EtherealPortals/icons.json`
+
+Data is automatically saved when changes are made and loaded on server startup.
+
+## Building from Source
+
+```bash
+git clone <repository-url>
+cd portal-plugin
+./gradlew shadowJar
+```
+
+The compiled JAR will be in `build/libs/EtherealPortals-1.0-all.jar`
 
 ## Support
 
-For issues, feature requests, or questions:
-- GitHub Issues: https://github.com/shweit/EtherealPortals/issues
+If you encounter any issues or have feature requests, please open an issue on the GitHub repository.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Credits
+---
 
-Developed by **shweit**
-Built with Paper API and PaperLib
+**Enjoy your mystical portal adventures!**

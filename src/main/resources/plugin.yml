@@ -12,6 +12,10 @@ commands:
     usage: "§cUsage: /portal <group|icon> <subcommand>"
     aliases: [portals, ep, etherealportals]
     permission: portal.use
+  epdebug:
+    description: Debug commands for EtherealPortals
+    usage: "§cUsage: /epdebug <check|hitbox|location>"
+    permission: portal.admin
 
 permissions:
   # Admin permissions
@@ -65,3 +69,6 @@ permissions:
   portal.icon.list:
     description: Allows viewing all icons
     default: op
+  portal.group.use.*:
+    description: Allows using all portal groups
+    default: true

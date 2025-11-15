@@ -1,3 +1,5 @@
 .gradle/
 build/
 test-server/
+.claude/settings.local.json
+.vscode/

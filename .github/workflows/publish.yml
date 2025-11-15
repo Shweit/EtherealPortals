@@ -41,12 +41,12 @@ jobs:
       - name: Upload to Modrinth & CurseForge
         uses: Kir-Antipov/mc-publish@v3.3
         with:
-          modrinth-id: McclaWoP
+          modrinth-id: xuBEDlEE
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
           files: ${{ steps.jar.outputs.path }}
 
-          name: Expendable Backpacks ${{ steps.version.outputs.version }}
+          name: EtherealPortals ${{ steps.version.outputs.version }}
           version: ${{ steps.version.outputs.version }}
           version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
 

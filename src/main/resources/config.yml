@@ -1,0 +1,12 @@
+portal:
+  hitbox:
+    width: 2.0
+    depth: 2.0
+    height: 2.0
+  teleport:
+    cooldownSeconds: 3
+    messageCooldownSeconds: 1
+  gui:
+    title: "§d§lSelect Portal"
+    show-coordinates: true
+    show-world: true
