@@ -2,38 +2,56 @@ package com.shweit.etherealportals.listener;
 
 import com.shweit.etherealportals.EtherealPortals;
 import com.shweit.etherealportals.manager.CooldownManager;
+import com.shweit.etherealportals.manager.IconManager;
 import com.shweit.etherealportals.manager.PortalManager;
 import com.shweit.etherealportals.model.Portal;
 import com.shweit.etherealportals.model.PortalGroup;
-import com.shweit.etherealportals.util.MessageUtils;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.Sound;
-import com.shweit.etherealportals.manager.IconManager;
 import com.shweit.etherealportals.model.PortalIcon;
+import com.shweit.etherealportals.util.MessageUtils;
 import com.shweit.etherealportals.util.SkullUtils;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 /** Detects portal entry when player moves. */
 public class PlayerMoveListener implements Listener {
   private final EtherealPortals plugin;
   private final Set<UUID> insidePortal = new HashSet<>();
 
+  /**
+   * Creates a new player move listener.
+   *
+   * @param plugin the plugin instance
+   */
   public PlayerMoveListener(EtherealPortals plugin) {
     this.plugin = plugin;
   }
 
+  /**
+   * Handles player movement events to detect portal entry.
+   *
+   * @param event the player move event
+   */
   @EventHandler
   public void onMove(PlayerMoveEvent event) {
     Player player = event.getPlayer();
     PortalManager pm = plugin.getPortalManager();
-    PortalManager.PortalResult result = pm.findPortalAt(event.getTo(), plugin.getHitboxWidth(), plugin.getHitboxDepth(), plugin.getHitboxHeight());
+    PortalManager.PortalResult result = pm.findPortalAt(event.getTo(),
+        plugin.getHitboxWidth(), plugin.getHitboxDepth(), plugin.getHitboxHeight());
     UUID uuid = player.getUniqueId();
     if (result != null) {
       if (!insidePortal.contains(uuid)) {
@@ -46,12 +64,18 @@ public class PlayerMoveListener implements Listener {
   }
 
   private void handlePortalEnter(Player player, Portal source, PortalGroup group) {
-    if (group == null) return;
+    if (group == null) {
+      return;
+    }
     int count = group.getPortals().size();
     if (count == 2) {
       // Direct teleport to other portal
-      Portal target = group.getPortals().stream().filter(p -> !p.getName().equals(source.getName())).findFirst().orElse(null);
-      if (target != null) teleport(player, target);
+      Portal target = group.getPortals().stream()
+          .filter(p -> !p.getName().equals(source.getName()))
+          .findFirst().orElse(null);
+      if (target != null) {
+        teleport(player, target);
+      }
     } else if (count >= 3) {
       openSelectionInventory(player, group, source);
     }
@@ -62,37 +86,46 @@ public class PlayerMoveListener implements Listener {
     int rows = Math.min(6, Math.max(1, (int) Math.ceil(options / 9.0)));
     int size = rows * 9;
     String title = ChatColor.DARK_PURPLE + "Select Portal";
-    org.bukkit.inventory.Inventory inv = org.bukkit.Bukkit.createInventory(player, size, title);
+    Inventory inv = Bukkit.createInventory(player, size, title);
     IconManager im = plugin.getIconManager();
-    group.getPortals().stream().filter(p -> !p.getName().equals(source.getName())).forEach(portal -> {
-      org.bukkit.inventory.ItemStack item;
-      String iconName = portal.getIconName();
-      if (iconName != null) {
-        PortalIcon icon = im.getIcon(iconName);
-        if (icon != null) {
-          item = SkullUtils.createHead(icon.getBase64(), ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
-        } else {
-          item = SkullUtils.createDefaultIcon(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
-        }
-      } else {
-        item = SkullUtils.createDefaultIcon(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
-      }
-      org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
-      if (meta != null) {
-        if (!meta.hasDisplayName()) meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
-        java.util.List<String> lore = new java.util.ArrayList<>();
-        lore.add(" ");
-        lore.add(ChatColor.GRAY + MessageUtils.formatCoords(portal.getBaseLocation()));
-        lore.add(ChatColor.GRAY + portal.getBaseLocation().getWorld().getName());
-        lore.add(" ");
-        lore.add(ChatColor.GREEN + "Click to teleport!");
-        meta.setLore(lore);
-        if (!item.setItemMeta(meta)) {
-          plugin.getLogger().warning("Failed to set item meta for portal: " + portal.getName());
-        }
-      }
-      inv.addItem(item);
-    });
+    group.getPortals().stream()
+        .filter(p -> !p.getName().equals(source.getName()))
+        .forEach(portal -> {
+          ItemStack item;
+          String iconName = portal.getIconName();
+          if (iconName != null) {
+            PortalIcon icon = im.getIcon(iconName);
+            if (icon != null) {
+              item = SkullUtils.createHead(icon.getBase64(),
+                  ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
+            } else {
+              item = SkullUtils.createDefaultIcon(
+                  ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
+            }
+          } else {
+            item = SkullUtils.createDefaultIcon(
+                ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
+          }
+          ItemMeta meta = item.getItemMeta();
+          if (meta != null) {
+            if (!meta.hasDisplayName()) {
+              meta.setDisplayName(
+                  ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
+            }
+            List<String> lore = new ArrayList<>();
+            lore.add(" ");
+            lore.add(ChatColor.GRAY + MessageUtils.formatCoords(portal.getBaseLocation()));
+            lore.add(ChatColor.GRAY + portal.getBaseLocation().getWorld().getName());
+            lore.add(" ");
+            lore.add(ChatColor.GREEN + "Click to teleport!");
+            meta.setLore(lore);
+            if (!item.setItemMeta(meta)) {
+              plugin.getLogger().warning(
+                  "Failed to set item meta for portal: " + portal.getName());
+            }
+          }
+          inv.addItem(item);
+        });
     player.openInventory(inv);
   }
 
@@ -106,13 +139,17 @@ public class PlayerMoveListener implements Listener {
       return;
     }
     // animation: burst + delay
-    player.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, player.getLocation(), 40, 0.5, 0.5, 0.5, 0.2);
-    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
-    org.bukkit.Location targetLoc = target.getCenterLocation();
-    org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+    player.getWorld().spawnParticle(Particle.PORTAL,
+        player.getLocation(), 40, 0.5, 0.5, 0.5, 0.2);
+    player.getWorld().playSound(player.getLocation(),
+        Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+    Location targetLoc = target.getCenterLocation();
+    Bukkit.getScheduler().runTaskLater(plugin, () -> {
       player.teleportAsync(targetLoc).thenRun(() -> {
-        targetLoc.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, targetLoc, 50, 0.5, 0.5, 0.5, 0.25);
-        targetLoc.getWorld().playSound(targetLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+        targetLoc.getWorld().spawnParticle(Particle.PORTAL,
+            targetLoc, 50, 0.5, 0.5, 0.5, 0.25);
+        targetLoc.getWorld().playSound(targetLoc,
+            Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
         MessageUtils.teleport(player, target.getName());
         cm.triggerTeleport(player.getUniqueId());
       });

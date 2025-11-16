@@ -2,27 +2,42 @@ package com.shweit.etherealportals.visual;
 
 import com.shweit.etherealportals.EtherealPortals;
 import com.shweit.etherealportals.model.PortalGroup;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.plugin.Plugin;
 
 /** Periodic task spawning particle spirals and maintaining text displays. */
 public class VisualEffectTask implements Runnable {
   private final EtherealPortals plugin;
   private volatile int taskId = -1;
 
+  /**
+   * Creates a new visual effect task.
+   *
+   * @param plugin the plugin instance
+   */
   public VisualEffectTask(EtherealPortals plugin) {
     this.plugin = plugin;
   }
 
+  /**
+   * Starts the visual effect task.
+   */
   public void start() {
-    if (taskId != -1) return;
+    if (taskId != -1) {
+      return;
+    }
     taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, 40L, 20L);
   }
 
+  /**
+   * Stops the visual effect task.
+   */
   public void stop() {
     if (taskId != -1) {
       Bukkit.getScheduler().cancelTask(taskId);
@@ -33,11 +48,13 @@ public class VisualEffectTask implements Runnable {
   @Override
   public void run() {
     double t = (System.currentTimeMillis() % 5000) / 5000.0; // progress
-    plugin.getPortalManager().getGroups().forEach(group -> group.getPortals().forEach(portal -> {
-      Location center = portal.getCenterLocation().clone().add(0, 0.1, 0);
-      spawnSpiral(center, t);
-      ensureTextDisplay(portal.getBaseLocation().clone().add(0.5, 3, 0.5), group.getName(), portal.getName());
-    }));
+    plugin.getPortalManager().getGroups().forEach(group ->
+        group.getPortals().forEach(portal -> {
+          Location center = portal.getCenterLocation().clone().add(0, 0.1, 0);
+          spawnSpiral(center, t);
+          ensureTextDisplay(portal.getBaseLocation().clone().add(0.5, 3, 0.5),
+              group.getName(), portal.getName());
+        }));
   }
 
   private void spawnSpiral(Location center, double progress) {
@@ -47,16 +64,18 @@ public class VisualEffectTask implements Runnable {
       double y = (i / 24.0) * 2.5;
       double x = center.getX() + Math.cos(angle) * radius;
       double z = center.getZ() + Math.sin(angle) * radius;
-      center.getWorld().spawnParticle(Particle.END_ROD, x, center.getY() + y, z, 1, 0,0,0,0);
+      center.getWorld().spawnParticle(Particle.END_ROD, x, center.getY() + y, z,
+          1, 0, 0, 0, 0);
     }
   }
 
   private void ensureTextDisplay(Location loc, String groupName, String portalName) {
     String tag = "ep_portal:" + groupName.toLowerCase() + ":" + portalName.toLowerCase();
-    boolean exists = loc.getWorld().getEntitiesByClass(TextDisplay.class).stream().anyMatch(td -> td.getScoreboardTags().contains(tag));
+    boolean exists = loc.getWorld().getEntitiesByClass(TextDisplay.class).stream()
+        .anyMatch(td -> td.getScoreboardTags().contains(tag));
     if (!exists) {
       loc.getWorld().spawn(loc, TextDisplay.class, d -> {
-        d.text(net.kyori.adventure.text.Component.text(org.bukkit.ChatColor.LIGHT_PURPLE + "" + org.bukkit.ChatColor.BOLD + portalName));
+        d.text(Component.text(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portalName));
         d.setBillboard(Display.Billboard.CENTER);
         d.setSeeThrough(true);
         d.setShadowed(true);
@@ -68,6 +87,7 @@ public class VisualEffectTask implements Runnable {
 
   /**
    * Removes the text display for a specific portal.
+   *
    * @param groupName The name of the group
    * @param portalName The name of the portal whose display should be removed
    */
@@ -76,15 +96,17 @@ public class VisualEffectTask implements Runnable {
     Bukkit.getWorlds().forEach(world -> {
       world.getEntitiesByClass(TextDisplay.class).stream()
           .filter(td -> td.getScoreboardTags().contains(tag))
-          .forEach(org.bukkit.entity.Entity::remove);
+          .forEach(Entity::remove);
     });
   }
 
   /**
    * Removes all text displays for all portals in a group.
+   *
    * @param group The portal group whose displays should be removed
    */
   public void removeGroupTextDisplays(PortalGroup group) {
-    group.getPortals().forEach(portal -> removeTextDisplay(group.getName(), portal.getName()));
+    group.getPortals().forEach(portal ->
+        removeTextDisplay(group.getName(), portal.getName()));
   }
 }

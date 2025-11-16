@@ -5,8 +5,16 @@ import com.shweit.etherealportals.manager.IconManager;
 import com.shweit.etherealportals.manager.PortalManager;
 import com.shweit.etherealportals.model.Portal;
 import com.shweit.etherealportals.model.PortalGroup;
+import com.shweit.etherealportals.model.PortalIcon;
 import com.shweit.etherealportals.util.MessageUtils;
+import com.shweit.etherealportals.util.SkullUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -16,27 +24,27 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.Material;
 import org.bukkit.inventory.meta.ItemMeta;
-import com.shweit.etherealportals.util.SkullUtils;
-import com.shweit.etherealportals.model.PortalIcon;
-import org.bukkit.ChatColor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 /** Handles /portal group & icon subcommands plus GUI opening. */
 public class PortalCommand implements CommandExecutor, TabCompleter {
   private final EtherealPortals plugin;
-  public PortalCommand(EtherealPortals plugin) { this.plugin = plugin; }
+
+  /**
+   * Creates a new portal command executor.
+   *
+   * @param plugin the plugin instance
+   */
+  public PortalCommand(EtherealPortals plugin) {
+    this.plugin = plugin;
+  }
 
   @Override
-  public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+  public boolean onCommand(CommandSender sender, Command command,
+      String label, String[] args) {
     if (args.length == 0) {
-      MessageUtils.info(sender, "Usage: &d/portal &7<&bgroup&7|&bicon&7> &7<subcommand>");
+      MessageUtils.info(sender,
+          "Usage: &d/portal &7<&bgroup&7|&bicon&7> &7<subcommand>");
       return true;
     }
     switch (args[0].toLowerCase(Locale.ROOT)) {
@@ -47,7 +55,8 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
         handleIcon(sender, args);
         return true;
       default:
-        MessageUtils.error(sender, "Unknown category! Use &d/portal group &cor &d/portal icon&c.");
+        MessageUtils.error(sender,
+            "Unknown category! Use &d/portal group &cor &d/portal icon&c.");
         return true;
     }
   }
@@ -55,23 +64,34 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
   private void handleGroup(CommandSender sender, String[] args) {
     PortalManager pm = plugin.getPortalManager();
     if (args.length < 2) {
-      MessageUtils.info(sender, "Available commands: &dcreate&7, &ddelete&7, &dadd&7, &dremove&7, &dlist");
+      MessageUtils.info(sender,
+          "Available commands: &dcreate&7, &ddelete&7, &dadd&7, &dremove&7, &dlist");
       return;
     }
     String sub = args[1].toLowerCase();
     switch (sub) {
-      case "create": {
-        if (!sender.hasPermission("portal.group.create")) { noPerm(sender); return; }
+      case "create":
+        {
+        if (!sender.hasPermission("portal.group.create")) {
+          noPerm(sender);
+          return;
+        }
         if (args.length < 3) {
           MessageUtils.info(sender, "Usage: &d/portal group create &b<name>");
           return;
         }
         pm.createGroupIfAbsent(args[2]);
-        MessageUtils.success(sender, "Portal group &d" + args[2] + "&a has been created!");
+        MessageUtils.success(sender,
+            "Portal group &d" + args[2] + "&a has been created!");
         plugin.getDataManager().saveGroups();
-        return; }
-      case "delete": {
-        if (!sender.hasPermission("portal.group.delete")) { noPerm(sender); return; }
+        return;
+        }
+      case "delete":
+        {
+        if (!sender.hasPermission("portal.group.delete")) {
+          noPerm(sender);
+          return;
+        }
         if (args.length < 3) {
           MessageUtils.info(sender, "Usage: &d/portal group delete &b<name>");
           return;
@@ -83,20 +103,29 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
           if (group != null) {
             plugin.getVisualTask().removeGroupTextDisplays(group);
           }
-          MessageUtils.success(sender, "Portal group &d" + args[2] + "&a has been deleted.");
+          MessageUtils.success(sender,
+              "Portal group &d" + args[2] + "&a has been deleted.");
         } else {
-          MessageUtils.error(sender, "Portal group &d" + args[2] + "&c doesn't exist.");
+          MessageUtils.error(sender,
+              "Portal group &d" + args[2] + "&c doesn't exist.");
         }
         plugin.getDataManager().saveGroups();
-        return; }
-      case "add": {
-        if (!sender.hasPermission("portal.group.add")) { noPerm(sender); return; }
+        return;
+        }
+      case "add":
+        {
+        if (!sender.hasPermission("portal.group.add")) {
+          noPerm(sender);
+          return;
+        }
         if (!(sender instanceof Player)) {
           MessageUtils.error(sender, "This command can only be used by players.");
           return;
         }
         if (args.length < 7) {
-          MessageUtils.info(sender, "Usage: &d/portal group add &b<group> <name> <x> <y> <z> &7[world] [icon]");
+          MessageUtils.info(sender,
+              "Usage: &d/portal group add &b<group> <name> <x> <y> <z> "
+              + "&7[world] [icon]");
           return;
         }
         Player p = (Player) sender;
@@ -108,21 +137,33 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
         World world = p.getWorld();
         if (args.length >= 8) {
           World w = Bukkit.getWorld(args[7]);
-          if (w != null) world = w;
+          if (w != null) {
+            world = w;
+          }
         }
         String icon = args.length >= 9 ? args[8] : null;
-        boolean added = pm.addPortal(group, name, new Location(world, Math.floor(x), Math.floor(y), Math.floor(z)), icon);
+        boolean added = pm.addPortal(group, name,
+            new Location(world, Math.floor(x), Math.floor(y), Math.floor(z)), icon);
         if (added) {
-          MessageUtils.success(sender, "Portal &d" + name + "&a has been added to group &d" + group + "&a!");
+          MessageUtils.success(sender,
+              "Portal &d" + name + "&a has been added to group &d" + group + "&a!");
         } else {
-          MessageUtils.error(sender, "A portal with the name &d" + name + "&c already exists in this group.");
+          MessageUtils.error(sender,
+              "A portal with the name &d" + name
+              + "&c already exists in this group.");
         }
         plugin.getDataManager().saveGroups();
-        return; }
-      case "remove": {
-        if (!sender.hasPermission("portal.group.remove")) { noPerm(sender); return; }
+        return;
+        }
+      case "remove":
+        {
+        if (!sender.hasPermission("portal.group.remove")) {
+          noPerm(sender);
+          return;
+        }
         if (args.length < 4) {
-          MessageUtils.info(sender, "Usage: &d/portal group remove &b<group> <name>");
+          MessageUtils.info(sender,
+              "Usage: &d/portal group remove &b<group> <name>");
           return;
         }
         String groupName = args[2];
@@ -131,37 +172,56 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
         if (removed) {
           // Clean up text display for this portal
           plugin.getVisualTask().removeTextDisplay(groupName, portalName);
-          MessageUtils.success(sender, "Portal &d" + portalName + "&a has been removed from group &d" + groupName + "&a.");
+          MessageUtils.success(sender,
+              "Portal &d" + portalName + "&a has been removed from group &d"
+              + groupName + "&a.");
         } else {
-          MessageUtils.error(sender, "Portal &d" + portalName + "&c doesn't exist in group &d" + groupName + "&c.");
+          MessageUtils.error(sender,
+              "Portal &d" + portalName + "&c doesn't exist in group &d"
+              + groupName + "&c.");
         }
         plugin.getDataManager().saveGroups();
-        return; }
-      case "list": {
-        if (!sender.hasPermission("portal.use")) { noPerm(sender); return; }
+        return;
+        }
+      case "list":
+        {
+        if (!sender.hasPermission("portal.use")) {
+          noPerm(sender);
+          return;
+        }
         if (args.length == 2) {
           if (pm.getGroups().isEmpty()) {
             MessageUtils.warning(sender, "No portal groups have been created yet.");
           } else {
-            MessageUtils.info(sender, "Portal Groups &7(" + pm.getGroups().size() + ")&7: &d" +
-                pm.getGroups().stream().map(PortalGroup::getName).collect(Collectors.joining("&7, &d")));
+            MessageUtils.info(sender,
+                "Portal Groups &7(" + pm.getGroups().size() + ")&7: &d"
+                + pm.getGroups().stream().map(PortalGroup::getName)
+                    .collect(Collectors.joining("&7, &d")));
           }
         } else {
           PortalGroup g = pm.getGroup(args[2]);
           if (g == null) {
-            MessageUtils.error(sender, "Portal group &d" + args[2] + "&c doesn't exist.");
+            MessageUtils.error(sender,
+                "Portal group &d" + args[2] + "&c doesn't exist.");
             return;
           }
           if (g.getPortals().isEmpty()) {
-            MessageUtils.warning(sender, "Group &d" + g.getName() + "&e doesn't have any portals yet.");
+            MessageUtils.warning(sender,
+                "Group &d" + g.getName() + "&e doesn't have any portals yet.");
           } else {
-            MessageUtils.info(sender, "Portals in &d" + g.getName() + " &7(" + g.getPortals().size() + ")&7: &d" +
-                g.getPortals().stream().map(Portal::getName).collect(Collectors.joining("&7, &d")));
+            MessageUtils.info(sender,
+                "Portals in &d" + g.getName() + " &7(" + g.getPortals().size()
+                + ")&7: &d"
+                + g.getPortals().stream().map(Portal::getName)
+                    .collect(Collectors.joining("&7, &d")));
           }
         }
-        return; }
+        return;
+        }
       default:
-        MessageUtils.error(sender, "Unknown subcommand! Use &d/portal group &cto see available commands.");
+        MessageUtils.error(sender,
+            "Unknown subcommand! Use &d/portal group &cto see available commands.");
+        return;
     }
   }
 
@@ -173,64 +233,89 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
     }
     String sub = args[1].toLowerCase();
     switch (sub) {
-      case "add": {
-        if (!sender.hasPermission("portal.icon.add")) { noPerm(sender); return; }
+      case "add":
+        {
+        if (!sender.hasPermission("portal.icon.add")) {
+          noPerm(sender);
+          return;
+        }
         if (args.length < 4) {
           MessageUtils.info(sender, "Usage: &d/portal icon add &b<name> <base64>");
           return;
         }
         boolean ok = im.addIcon(args[2], args[3]);
         if (ok) {
-          MessageUtils.success(sender, "Custom icon &d" + args[2] + "&a has been added!");
+          MessageUtils.success(sender,
+              "Custom icon &d" + args[2] + "&a has been added!");
         } else {
-          MessageUtils.error(sender, "An icon with the name &d" + args[2] + "&c already exists.");
+          MessageUtils.error(sender,
+              "An icon with the name &d" + args[2] + "&c already exists.");
         }
         plugin.getDataManager().saveIcons();
-        return; }
-      case "remove": {
-        if (!sender.hasPermission("portal.icon.remove")) { noPerm(sender); return; }
+        return;
+        }
+      case "remove":
+        {
+        if (!sender.hasPermission("portal.icon.remove")) {
+          noPerm(sender);
+          return;
+        }
         if (args.length < 3) {
           MessageUtils.info(sender, "Usage: &d/portal icon remove &b<name>");
           return;
         }
         boolean ok = im.removeIcon(args[2]);
         if (ok) {
-          MessageUtils.success(sender, "Custom icon &d" + args[2] + "&a has been removed.");
+          MessageUtils.success(sender,
+              "Custom icon &d" + args[2] + "&a has been removed.");
         } else {
           MessageUtils.error(sender, "Icon &d" + args[2] + "&c doesn't exist.");
         }
         plugin.getDataManager().saveIcons();
-        return; }
-      case "list": {
+        return;
+        }
+      case "list":
+        {
         if (!(sender instanceof Player)) {
           MessageUtils.error(sender, "This command can only be used by players.");
           return;
         }
-        if (!sender.hasPermission("portal.icon.list")) { noPerm(sender); return; }
+        if (!sender.hasPermission("portal.icon.list")) {
+          noPerm(sender);
+          return;
+        }
         Player p = (Player) sender;
         openIconList(p);
-        return; }
+        return;
+        }
       default:
-        MessageUtils.error(sender, "Unknown subcommand! Use &d/portal icon &cto see available commands.");
+        MessageUtils.error(sender,
+            "Unknown subcommand! Use &d/portal icon &cto see available commands.");
+        return;
     }
   }
 
   private void openIconList(Player player) {
     int size = 9 * ((plugin.getIconManager().getIcons().size() / 9) + 1);
-    if (size > 54) size = 54;
-    Inventory inv = Bukkit.createInventory(player, size, ChatColor.DARK_PURPLE + "Icons");
+    if (size > 54) {
+      size = 54;
+    }
+    Inventory inv = Bukkit.createInventory(player, size,
+        ChatColor.DARK_PURPLE + "Icons");
     for (PortalGroup group : plugin.getPortalManager().getGroups()) {
       // no icons here, skip
     }
     plugin.getIconManager().getIcons().forEach(icon -> {
-      ItemStack head = SkullUtils.createHead(icon.getBase64(), ChatColor.LIGHT_PURPLE + icon.getName());
+      ItemStack head = SkullUtils.createHead(icon.getBase64(),
+          ChatColor.LIGHT_PURPLE + icon.getName());
       ItemMeta meta = head.getItemMeta();
       if (meta != null) {
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GRAY + "Custom Icon");
         meta.setLore(lore);
         if (!head.setItemMeta(meta)) {
-          plugin.getLogger().warning("Failed to set item meta for icon: " + icon.getName());
+          plugin.getLogger().warning("Failed to set item meta for icon: "
+              + icon.getName());
         }
       }
       inv.addItem(head);
@@ -243,7 +328,8 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
   }
 
   @Override
-  public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+  public List<String> onTabComplete(CommandSender sender, Command command,
+      String alias, String[] args) {
     if (args.length == 1) {
       return partial(args[0], List.of("group", "icon"));
     }
@@ -274,9 +360,14 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
           Player p = (Player) sender;
           Location loc = p.getLocation();
           int index = args.length - 5; // 0=x, 1=y, 2=z
-          String coord = index == 0 ? String.valueOf((int) loc.getX()) :
-                         index == 1 ? String.valueOf((int) loc.getY()) :
-                         String.valueOf((int) loc.getZ());
+          String coord;
+          if (index == 0) {
+            coord = String.valueOf((int) loc.getX());
+          } else if (index == 1) {
+            coord = String.valueOf((int) loc.getY());
+          } else {
+            coord = String.valueOf((int) loc.getZ());
+          }
           return partial(args[args.length - 1], List.of(coord, "~"));
         }
         if (args.length == 8) {

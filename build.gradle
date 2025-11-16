@@ -107,6 +107,7 @@ tasks.withType(Checkstyle).configureEach {
 }
 
 tasks.withType(SpotBugsTask).configureEach {
+    excludeFilter = file("config/spotbugs/excludeFilter.xml")
     reports.create("html") {
         required = true
     }

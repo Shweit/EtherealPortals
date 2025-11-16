@@ -1,5 +1,10 @@
 package com.shweit.etherealportals.util;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -7,25 +12,33 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Base64;
-import java.util.UUID;
-
 /** Utility to create a custom textured player head from base64 texture value. */
 public final class SkullUtils {
   // Default portal icon texture (purple portal-like design)
-  private static final String DEFAULT_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjBiZmMyNTc3ZjZlMjZjNmM2ZjczNjVjMmM0MDc2YmNjZWU2NTMxMjQ5ODkzODJjZTkzYmNhNGZjOWUzOWIifX19";
+  private static final String DEFAULT_TEXTURE =
+      "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQu"
+      + "bmV0L3RleHR1cmUvYjBiZmMyNTc3ZjZlMjZjNmM2ZjczNjVjMmM0MDc2YmNjZWU2NTMxMjQ5ODkzODJ"
+      + "jZTkzYmNhNGZjOWUzOWIifX19";
 
   private SkullUtils() {}
 
   /**
    * Creates a default portal icon with the standard texture.
+   *
+   * @param displayName the display name for the icon
+   * @return ItemStack with the default portal texture
    */
   public static ItemStack createDefaultIcon(String displayName) {
     return createHead(DEFAULT_TEXTURE, displayName);
   }
 
+  /**
+   * Creates a custom player head with a base64-encoded texture.
+   *
+   * @param base64 the base64-encoded texture value
+   * @param displayName the display name for the head
+   * @return ItemStack with the custom texture
+   */
   public static ItemStack createHead(String base64, String displayName) {
     ItemStack head = new ItemStack(Material.PLAYER_HEAD);
     SkullMeta meta = (SkullMeta) head.getItemMeta();
@@ -62,11 +75,14 @@ public final class SkullUtils {
   /**
    * Extracts the texture URL from a base64-encoded texture value.
    * The base64 typically contains a JSON with the texture URL.
+   *
+   * @param base64 the base64-encoded texture value
+   * @return the extracted texture URL, or null if parsing fails
    */
   private static String getTextureUrlFromBase64(String base64) {
     try {
       // Decode the base64 string
-      String decoded = new String(Base64.getDecoder().decode(base64));
+      String decoded = new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8);
 
       // Extract URL from JSON (simple parsing)
       // Format: {"textures":{"SKIN":{"url":"http://textures.minecraft.net/texture/..."}}}

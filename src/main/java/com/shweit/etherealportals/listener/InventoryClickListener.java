@@ -6,32 +6,53 @@ import com.shweit.etherealportals.manager.PortalManager;
 import com.shweit.etherealportals.model.Portal;
 import com.shweit.etherealportals.model.PortalGroup;
 import com.shweit.etherealportals.util.MessageUtils;
-import org.bukkit.Sound;
 import org.bukkit.ChatColor;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 
 /** Blocks item interaction in plugin GUIs (simple protection). */
 public class InventoryClickListener implements Listener {
   private final EtherealPortals plugin;
-  public InventoryClickListener(EtherealPortals plugin) { this.plugin = plugin; }
 
+  /**
+   * Creates a new inventory click listener.
+   *
+   * @param plugin the plugin instance
+   */
+  public InventoryClickListener(EtherealPortals plugin) {
+    this.plugin = plugin;
+  }
+
+  /**
+   * Handles inventory click events for plugin GUIs.
+   *
+   * @param event the inventory click event
+   */
   @EventHandler
   public void onClick(InventoryClickEvent event) {
     String title = event.getView().getTitle();
-    if (title.contains("Icons") ) {
+    if (title.contains("Icons")) {
       event.setCancelled(true);
     } else if (title.contains("Select Portal")) {
       event.setCancelled(true);
-      if (!(event.getWhoClicked() instanceof Player)) return;
+      if (!(event.getWhoClicked() instanceof Player)) {
+        return;
+      }
       Player player = (Player) event.getWhoClicked();
-      org.bukkit.inventory.ItemStack current = event.getCurrentItem();
-      if (current == null || !current.hasItemMeta()) return;
+      ItemStack current = event.getCurrentItem();
+      if (current == null || !current.hasItemMeta()) {
+        return;
+      }
       String displayName = current.getItemMeta().getDisplayName();
-      if (displayName == null) return;
       String display = ChatColor.stripColor(displayName);
+      if (display == null || display.isEmpty()) {
+        return;
+      }
       teleportByName(player, display.toLowerCase());
     }
   }
@@ -41,7 +62,10 @@ public class InventoryClickListener implements Listener {
     Portal target = null;
     for (PortalGroup group : pm.getGroups()) {
       Portal p = group.getPortal(portalName);
-      if (p != null) { target = p; break; }
+      if (p != null) {
+        target = p;
+        break;
+      }
     }
     if (target == null) {
       MessageUtils.error(player, "Could not find portal &d" + portalName + "&c.");
@@ -56,14 +80,18 @@ public class InventoryClickListener implements Listener {
       return;
     }
     player.closeInventory();
-    player.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, player.getLocation(), 40, 0.5, 0.5, 0.5, 0.2);
-    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+    player.getWorld().spawnParticle(Particle.PORTAL, player.getLocation(),
+        40, 0.5, 0.5, 0.5, 0.2);
+    player.getWorld().playSound(player.getLocation(),
+        Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
     final Portal finalTarget = target;
     org.bukkit.Location targetLoc = finalTarget.getCenterLocation();
     org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
       player.teleportAsync(targetLoc).thenRun(() -> {
-        targetLoc.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, targetLoc, 50, 0.5, 0.5, 0.5, 0.25);
-        targetLoc.getWorld().playSound(targetLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+        targetLoc.getWorld().spawnParticle(Particle.PORTAL, targetLoc,
+            50, 0.5, 0.5, 0.5, 0.25);
+        targetLoc.getWorld().playSound(targetLoc,
+            Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
         MessageUtils.teleport(player, finalTarget.getName());
         cm.triggerTeleport(player.getUniqueId());
       });

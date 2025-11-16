@@ -3,14 +3,14 @@ package com.shweit.etherealportals.manager;
 import com.shweit.etherealportals.model.Portal;
 import com.shweit.etherealportals.model.PortalGroup;
 import com.shweit.etherealportals.model.PortalIcon;
+import java.io.File;
+import java.io.IOException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Handles YAML persistence for groups and icons.
@@ -24,6 +24,13 @@ public class DataManager {
   private FileConfiguration groupsCfg;
   private FileConfiguration iconsCfg;
 
+  /**
+   * Creates a new data manager.
+   *
+   * @param plugin the plugin instance
+   * @param portalManager the portal manager
+   * @param iconManager the icon manager
+   */
   public DataManager(JavaPlugin plugin, PortalManager portalManager, IconManager iconManager) {
     this.plugin = plugin;
     this.portalManager = portalManager;
@@ -40,10 +47,22 @@ public class DataManager {
     groupsFile = new File(plugin.getDataFolder(), "groups.yml");
     iconsFile = new File(plugin.getDataFolder(), "icons.yml");
     if (!groupsFile.exists()) {
-      try { groupsFile.createNewFile(); } catch (IOException ignored) {}
+      try {
+        if (!groupsFile.createNewFile()) {
+          plugin.getLogger().warning("Failed to create groups.yml");
+        }
+      } catch (IOException e) {
+        plugin.getLogger().severe("IOException creating groups.yml: " + e.getMessage());
+      }
     }
     if (!iconsFile.exists()) {
-      try { iconsFile.createNewFile(); } catch (IOException ignored) {}
+      try {
+        if (!iconsFile.createNewFile()) {
+          plugin.getLogger().warning("Failed to create icons.yml");
+        }
+      } catch (IOException e) {
+        plugin.getLogger().severe("IOException creating icons.yml: " + e.getMessage());
+      }
     }
     groupsCfg = YamlConfiguration.loadConfiguration(groupsFile);
     iconsCfg = YamlConfiguration.loadConfiguration(iconsFile);
@@ -54,16 +73,24 @@ public class DataManager {
   private void loadGroups() {
     for (String groupName : groupsCfg.getKeys(false)) {
       PortalGroup group = portalManager.createGroupIfAbsent(groupName);
-      var groupSection = groupsCfg.getConfigurationSection(groupName);
-      if (groupSection == null) continue;
+      ConfigurationSection groupSection = groupsCfg.getConfigurationSection(groupName);
+      if (groupSection == null) {
+        continue;
+      }
       for (String portalName : groupSection.getKeys(false)) {
         String path = groupName + "." + portalName;
         String worldName = groupsCfg.getString(path + ".world");
-        if (worldName == null) continue;
+        if (worldName == null) {
+          continue;
+        }
         World world = Bukkit.getWorld(worldName);
-        if (world == null) continue; // skip
-        var portalSection = groupsCfg.getConfigurationSection(path);
-        if (portalSection == null) continue;
+        if (world == null) {
+          continue; // skip
+        }
+        ConfigurationSection portalSection = groupsCfg.getConfigurationSection(path);
+        if (portalSection == null) {
+          continue;
+        }
         Portal portal = Portal.deserialize(portalName, portalSection, world);
         group.addPortal(portal);
       }
@@ -79,12 +106,15 @@ public class DataManager {
     }
   }
 
+  /**
+   * Saves all portal groups to disk.
+   */
   public void saveGroups() {
     FileConfiguration tmp = new YamlConfiguration();
     for (PortalGroup group : portalManager.getGroups()) {
-      String gName = group.getName();
+      String groupName = group.getName();
       for (Portal portal : group.getPortals()) {
-        String path = gName + "." + portal.getName();
+        String path = groupName + "." + portal.getName();
         portal.serialize(tmp.createSection(path));
       }
     }
@@ -96,6 +126,9 @@ public class DataManager {
     }
   }
 
+  /**
+   * Saves all custom icons to disk.
+   */
   public void saveIcons() {
     FileConfiguration tmp = new YamlConfiguration();
     for (PortalIcon icon : iconManager.getIcons()) {

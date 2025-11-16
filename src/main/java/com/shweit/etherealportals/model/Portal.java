@@ -1,10 +1,9 @@
 package com.shweit.etherealportals.model;
 
+import java.util.Objects;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-
-import java.util.Objects;
 
 /**
  * Represents a single portal inside a group.
@@ -14,6 +13,13 @@ public class Portal {
   private final Location baseLocation; // block base
   private String iconName; // optional icon reference
 
+  /**
+   * Creates a new portal.
+   *
+   * @param name the portal name
+   * @param baseLocation the base location of the portal
+   * @param iconName the optional icon name
+   */
   public Portal(String name, Location baseLocation, String iconName) {
     this.name = name;
     this.baseLocation = baseLocation.clone();
@@ -40,6 +46,11 @@ public class Portal {
     this.iconName = iconName;
   }
 
+  /**
+   * Serializes this portal to a configuration section.
+   *
+   * @param section the configuration section to write to
+   */
   public void serialize(ConfigurationSection section) {
     section.set("world", baseLocation.getWorld().getName());
     section.set("x", baseLocation.getX());
@@ -52,6 +63,14 @@ public class Portal {
     }
   }
 
+  /**
+   * Deserializes a portal from a configuration section.
+   *
+   * @param name the portal name
+   * @param section the configuration section to read from
+   * @param world the world the portal is in
+   * @return the deserialized portal
+   */
   public static Portal deserialize(String name, ConfigurationSection section, World world) {
     double x = section.getDouble("x");
     double y = section.getDouble("y");
@@ -65,8 +84,12 @@ public class Portal {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof Portal)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Portal)) {
+      return false;
+    }
     Portal portal = (Portal) o;
     return name.equalsIgnoreCase(portal.name);
   }

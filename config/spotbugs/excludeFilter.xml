@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude EI_EXPOSE_REP warnings for manager getters - intentional plugin architecture pattern -->
+    <Match>
+        <Class name="com.shweit.etherealportals.EtherealPortals"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+
+    <!-- Exclude EI_EXPOSE_REP warnings for PortalResult - immutable usage pattern -->
+    <Match>
+        <Class name="com.shweit.etherealportals.manager.PortalManager$PortalResult"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+
+    <!-- Exclude EI_EXPOSE_REP2 for plugin constructors - standard dependency injection pattern -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- Exclude EI_EXPOSE_REP for all manager classes - intentional API design -->
+    <Match>
+        <Package name="~com\.shweit\.etherealportals\.(manager|model).*"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+</FindBugsFilter>
