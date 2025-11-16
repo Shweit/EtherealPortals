@@ -44,6 +44,9 @@ jobs:
           modrinth-id: xuBEDlEE
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
+          curseforge-id: 1385812
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+
           files: ${{ steps.jar.outputs.path }}
 
           name: EtherealPortals ${{ steps.version.outputs.version }}
