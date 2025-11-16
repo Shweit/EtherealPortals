@@ -5,6 +5,40 @@ All notable changes to Ethereal Portals will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2025-11-16
+
+### Added
+- CurseForge integration to publishing workflow
+  - Automatic publishing to CurseForge on release
+  - Support for both Modrinth and CurseForge platforms
+
+### Changed
+- Updated dependency `org.junit.jupiter:junit-jupiter` from 6.0.0 to 6.0.1
+- Updated dependency `org.junit.platform:junit-platform-launcher` from 6.0.0 to 6.0.1
+- Updated dependency `com.github.spotbugs` from 6.4.2 to 6.4.5
+- Updated dependency `com.github.spotbugs:spotbugs-annotations` from 4.9.6 to 4.9.8
+
+### Removed
+- Deprecated `main.yml` workflow in favor of streamlined `publish.yml`
+
+---
+
+## [1.0.1] - 2025-11-16
+
+### Changed
+- Resolved all Checkstyle violations across the entire codebase
+- Fixed all SpotBugs violations with proper null checks and resource handling
+- Improved code quality and maintainability throughout all classes
+- Added SpotBugs exclude filter configuration for legitimate cases
+
+### Technical
+- Enhanced null safety with proper annotations and checks
+- Improved resource management and exception handling
+- Refactored code to meet static analysis standards
+- Better compliance with Java coding best practices
+
+---
+
 ## [1.0.0] - 2025-11-15
 
 ### Added
