@@ -1,5 +1,6 @@
 package com.shweit.etherealportals;
 
+import com.shweit.etherealportals.command.EpDebugCommand;
 import com.shweit.etherealportals.command.PortalCommand;
 import com.shweit.etherealportals.listener.InventoryClickListener;
 import com.shweit.etherealportals.listener.InventoryCloseListener;
@@ -146,6 +147,12 @@ public class EtherealPortals extends JavaPlugin {
       PortalCommand executor = new PortalCommand(this);
       portalCmd.setExecutor(executor);
       portalCmd.setTabCompleter(executor);
+    }
+    PluginCommand debugCmd = getCommand("epdebug");
+    if (debugCmd != null) {
+      EpDebugCommand debugExecutor = new EpDebugCommand(this);
+      debugCmd.setExecutor(debugExecutor);
+      debugCmd.setTabCompleter(debugExecutor);
     }
   }
 

@@ -142,11 +142,14 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
           }
         }
         String icon = args.length >= 9 ? args[8] : null;
-        boolean added = pm.addPortal(group, name,
-            new Location(world, Math.floor(x), Math.floor(y), Math.floor(z)), icon);
+        Location portalLoc = new Location(world, Math.floor(x), Math.floor(y), Math.floor(z));
+        boolean added = pm.addPortal(group, name, portalLoc, icon);
         if (added) {
           MessageUtils.success(sender,
               "Portal &d" + name + "&a has been added to group &d" + group + "&a!");
+          // Create text display for the new portal
+          plugin.getVisualTask().createTextDisplay(
+              portalLoc.clone().add(0.5, 3, 0.5), group, name);
         } else {
           MessageUtils.error(sender,
               "A portal with the name &d" + name
