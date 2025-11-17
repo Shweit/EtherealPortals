@@ -5,6 +5,34 @@ All notable changes to Ethereal Portals will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2025-11-17
+
+### Fixed
+- **Critical**: Fixed massive FPS drops (down to 1 FPS) after multiple server restarts caused by TextDisplay entity duplication
+  - TextDisplay entities are now properly managed as persistent entities
+  - Entities are only created when portals are added, not on every server restart
+  - Root cause: TextDisplays were being recreated every second in VisualEffectTask despite being persistent
+
+### Added
+- `/epdebug` command for monitoring and debugging portal TextDisplay entities
+  - `/epdebug count` - Shows total count of portal TextDisplays per world
+  - `/epdebug list` - Lists all portal TextDisplays and highlights duplicates
+  - `/epdebug check` - Shows nearby TextDisplays within 50 blocks with coordinates and distance
+  - `/epdebug cleanup` - Manually removes all portal TextDisplays (they respawn automatically)
+- One-time sync on startup to create missing TextDisplays for portals created before this update
+
+### Changed
+- `VisualEffectTask` now only spawns particle effects, TextDisplay management moved to portal commands
+- TextDisplays are created immediately when portals are added via `/portal group add`
+- Improved chunk loading handling to prevent entity duplication in unloaded chunks
+
+### Technical
+- Removed `ensureTextDisplay()` loop from periodic task execution
+- Added `syncMissingTextDisplays()` for one-time startup synchronization
+- TextDisplay creation now properly handles chunk loading to avoid false negatives
+
+---
+
 ## [1.0.2] - 2025-11-16
 
 ### Added

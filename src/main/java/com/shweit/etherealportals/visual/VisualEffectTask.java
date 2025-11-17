@@ -11,7 +11,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.TextDisplay;
 
-/** Periodic task spawning particle spirals and maintaining text displays. */
+/** Periodic task spawning particle spirals. */
 public class VisualEffectTask implements Runnable {
   private final EtherealPortals plugin;
   private volatile int taskId = -1;
@@ -32,6 +32,8 @@ public class VisualEffectTask implements Runnable {
     if (taskId != -1) {
       return;
     }
+    // One-time sync: create missing TextDisplays for existing portals
+    syncMissingTextDisplays();
     taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, 40L, 20L);
   }
 
@@ -52,8 +54,6 @@ public class VisualEffectTask implements Runnable {
         group.getPortals().forEach(portal -> {
           Location center = portal.getCenterLocation().clone().add(0, 0.1, 0);
           spawnSpiral(center, t);
-          ensureTextDisplay(portal.getBaseLocation().clone().add(0.5, 3, 0.5),
-              group.getName(), portal.getName());
         }));
   }
 
@@ -66,22 +66,6 @@ public class VisualEffectTask implements Runnable {
       double z = center.getZ() + Math.sin(angle) * radius;
       center.getWorld().spawnParticle(Particle.END_ROD, x, center.getY() + y, z,
           1, 0, 0, 0, 0);
-    }
-  }
-
-  private void ensureTextDisplay(Location loc, String groupName, String portalName) {
-    String tag = "ep_portal:" + groupName.toLowerCase() + ":" + portalName.toLowerCase();
-    boolean exists = loc.getWorld().getEntitiesByClass(TextDisplay.class).stream()
-        .anyMatch(td -> td.getScoreboardTags().contains(tag));
-    if (!exists) {
-      loc.getWorld().spawn(loc, TextDisplay.class, d -> {
-        d.text(Component.text(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portalName));
-        d.setBillboard(Display.Billboard.CENTER);
-        d.setSeeThrough(true);
-        d.setShadowed(true);
-        d.setViewRange(50);
-        d.addScoreboardTag(tag);
-      });
     }
   }
 
@@ -108,5 +92,59 @@ public class VisualEffectTask implements Runnable {
   public void removeGroupTextDisplays(PortalGroup group) {
     group.getPortals().forEach(portal ->
         removeTextDisplay(group.getName(), portal.getName()));
+  }
+
+  /**
+   * Creates a text display for a newly added portal.
+   * Called when a portal is added via command.
+   * TextDisplays are persistent entities and will survive server restarts.
+   *
+   * @param loc The location for the text display
+   * @param groupName The portal group name
+   * @param portalName The portal name
+   */
+  public void createTextDisplay(Location loc, String groupName, String portalName) {
+    String tag = "ep_portal:" + groupName.toLowerCase() + ":" + portalName.toLowerCase();
+    loc.getWorld().spawn(loc, TextDisplay.class, d -> {
+      d.text(Component.text(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portalName));
+      d.setBillboard(Display.Billboard.CENTER);
+      d.setSeeThrough(true);
+      d.setShadowed(true);
+      d.setViewRange(50);
+      d.addScoreboardTag(tag);
+    });
+  }
+
+  /**
+   * Syncs missing TextDisplays for existing portals on startup.
+   * Only creates TextDisplays that don't already exist (e.g., portals created before this update).
+   * Loads chunks if needed to check for existing TextDisplays.
+   */
+  private void syncMissingTextDisplays() {
+    int created = 0;
+    for (PortalGroup group : plugin.getPortalManager().getGroups()) {
+      for (com.shweit.etherealportals.model.Portal portal : group.getPortals()) {
+        Location loc = portal.getBaseLocation().clone().add(0.5, 3, 0.5);
+        String tag = "ep_portal:" + group.getName().toLowerCase()
+            + ":" + portal.getName().toLowerCase();
+
+        // Load chunk to check for existing TextDisplays
+        if (!loc.isChunkLoaded()) {
+          loc.getChunk().load();
+        }
+
+        // Check if TextDisplay already exists
+        boolean exists = loc.getWorld().getEntitiesByClass(TextDisplay.class).stream()
+            .anyMatch(td -> td.getScoreboardTags().contains(tag));
+
+        if (!exists) {
+          createTextDisplay(loc, group.getName(), portal.getName());
+          created++;
+        }
+      }
+    }
+    if (created > 0) {
+      plugin.getLogger().info("Created " + created + " missing portal TextDisplay(s)");
+    }
   }
 }
