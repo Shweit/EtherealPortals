@@ -11,7 +11,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.TextDisplay;
 
-/** Periodic task spawning particle spirals */
+/** Periodic task spawning particle spirals. */
 public class VisualEffectTask implements Runnable {
   private final EtherealPortals plugin;
   private volatile int taskId = -1;
