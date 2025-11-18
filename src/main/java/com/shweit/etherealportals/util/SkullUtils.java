@@ -49,8 +49,9 @@ public final class SkullUtils {
 
     if (base64 != null && !base64.isEmpty()) {
       try {
-        // Create a player profile with the texture
-        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID(), "");
+        // Create a deterministic UUID based on the texture so items with the same texture stack
+        UUID textureUuid = UUID.nameUUIDFromBytes(base64.getBytes(StandardCharsets.UTF_8));
+        PlayerProfile profile = Bukkit.createPlayerProfile(textureUuid, "");
         PlayerTextures textures = profile.getTextures();
 
         // Decode base64 to get the texture URL

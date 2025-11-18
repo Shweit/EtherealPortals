@@ -89,11 +89,24 @@ public class PortalItemListener implements Listener {
     // Create group name: playername:groupBaseName
     String groupName = player.getName().toLowerCase() + ":" + groupBaseName.toLowerCase();
 
-    // Generate unique portal name by counting existing portals in group
+    // Generate unique portal name by finding the highest existing number
+    // This ensures we don't reuse numbers when portals are deleted
     PortalManager pm = plugin.getPortalManager();
     PortalGroup group = pm.getGroup(groupName);
-    int portalCount = (group != null) ? group.getPortals().size() : 0;
-    String portalName = String.valueOf(portalCount + 1);
+    int maxNumber = 0;
+    if (group != null) {
+      for (Portal p : group.getPortals()) {
+        try {
+          int num = Integer.parseInt(p.getName());
+          if (num > maxNumber) {
+            maxNumber = num;
+          }
+        } catch (NumberFormatException e) {
+          // Portal name is not a number, skip
+        }
+      }
+    }
+    String portalName = String.valueOf(maxNumber + 1);
 
     // Try to add portal
     boolean added = pm.addPortal(groupName, portalName, loc, null, true);
@@ -130,7 +143,7 @@ public class PortalItemListener implements Listener {
   /**
    * Handles armor stand breaking (portal removal).
    */
-  @EventHandler
+  @EventHandler(priority = org.bukkit.event.EventPriority.HIGH)
   public void onEntityDamage(EntityDamageByEntityEvent event) {
     // Check if entity is an armor stand
     if (!(event.getEntity() instanceof ArmorStand)) {
@@ -157,13 +170,16 @@ public class PortalItemListener implements Listener {
     event.setCancelled(true);
 
     // Parse group and portal name from tag: ep_portal_marker:<group>:<portal>
-    String[] parts = tag.substring("ep_portal_marker:".length()).split(":", 2);
-    if (parts.length != 2) {
+    // The group name may contain colons (e.g., "playername:home"), so we split at the LAST colon
+    String remaining = tag.substring("ep_portal_marker:".length());
+    int lastColon = remaining.lastIndexOf(':');
+    if (lastColon == -1) {
+      plugin.getLogger().warning("Invalid portal marker tag format: " + tag);
       return;
     }
 
-    String groupName = parts[0];
-    String portalName = parts[1];
+    String groupName = remaining.substring(0, lastColon);
+    String portalName = remaining.substring(lastColon + 1);
 
     // Find portal
     PortalManager pm = plugin.getPortalManager();

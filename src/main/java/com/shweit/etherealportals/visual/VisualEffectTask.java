@@ -181,9 +181,12 @@ public class VisualEffectTask implements Runnable {
     String tag = "ep_portal_marker:" + groupName.toLowerCase() + ":" + portalName.toLowerCase();
     loc.getWorld().spawn(loc, ArmorStand.class, as -> {
       as.setVisible(false);
-      as.setSmall(true);
+      as.setSmall(false); // Normal size for easier targeting
       as.setGravity(false);
       as.setMarker(false); // Keep hitbox so it can be damaged
+      as.setInvulnerable(false); // Make sure it can be damaged
+      as.setCustomName(ChatColor.GRAY + "(Portal - Punch to break)");
+      as.setCustomNameVisible(false); // Hidden by default, but shows on hover
       as.addScoreboardTag(tag);
     });
   }
