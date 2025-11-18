@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -26,6 +27,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 /** Detects portal entry when player moves. */
 public class PlayerMoveListener implements Listener {
@@ -91,27 +93,36 @@ public class PlayerMoveListener implements Listener {
     group.getPortals().stream()
         .filter(p -> !p.getName().equals(source.getName()))
         .forEach(portal -> {
+          // Create nice display name (e.g., "Home #1" instead of just "1")
+          String displayName = formatPortalDisplayName(group.getName(), portal.getName());
+          String coloredDisplayName = ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + displayName;
+
           ItemStack item;
           String iconName = portal.getIconName();
           if (iconName != null) {
             PortalIcon icon = im.getIcon(iconName);
             if (icon != null) {
-              item = SkullUtils.createHead(icon.getBase64(),
-                  ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
+              item = SkullUtils.createHead(icon.getBase64(), coloredDisplayName);
             } else {
-              item = SkullUtils.createDefaultIcon(
-                  ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
+              item = SkullUtils.createDefaultIcon(coloredDisplayName);
             }
           } else {
-            item = SkullUtils.createDefaultIcon(
-                ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
+            item = SkullUtils.createDefaultIcon(coloredDisplayName);
           }
           ItemMeta meta = item.getItemMeta();
           if (meta != null) {
             if (!meta.hasDisplayName()) {
-              meta.setDisplayName(
-                  ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + portal.getName());
+              meta.setDisplayName(coloredDisplayName);
             }
+
+            // Store group and portal name in NBT for reliable lookup
+            NamespacedKey groupKey = new NamespacedKey(plugin, "portal_group");
+            NamespacedKey portalKey = new NamespacedKey(plugin, "portal_name");
+            meta.getPersistentDataContainer().set(groupKey, PersistentDataType.STRING,
+                group.getName());
+            meta.getPersistentDataContainer().set(portalKey, PersistentDataType.STRING,
+                portal.getName());
+
             List<String> lore = new ArrayList<>();
             lore.add(" ");
             lore.add(ChatColor.GRAY + MessageUtils.formatCoords(portal.getBaseLocation()));
@@ -127,6 +138,33 @@ public class PlayerMoveListener implements Listener {
           inv.addItem(item);
         });
     player.openInventory(inv);
+  }
+
+  /**
+   * Formats a portal name for display in the GUI.
+   * For player-created portals (e.g., "playername:home" with portal "1"),
+   * returns "Home #1".
+   * For command-created portals, returns the portal name as-is.
+   *
+   * @param groupName the full group name
+   * @param portalName the portal name (usually a number for player-created portals)
+   * @return the formatted display name
+   */
+  private String formatPortalDisplayName(String groupName, String portalName) {
+    // Check if this is a player-created portal (format: "playername:basename")
+    int colonIndex = groupName.indexOf(':');
+    if (colonIndex != -1 && colonIndex < groupName.length() - 1) {
+      // Extract base name after colon
+      String baseName = groupName.substring(colonIndex + 1);
+      // Capitalize first letter
+      if (!baseName.isEmpty()) {
+        baseName = Character.toUpperCase(baseName.charAt(0)) + baseName.substring(1);
+      }
+      // Return formatted name like "Home #1"
+      return baseName + " #" + portalName;
+    }
+    // Command-created portal: return portal name as-is
+    return portalName;
   }
 
   private void teleport(Player player, Portal target) {

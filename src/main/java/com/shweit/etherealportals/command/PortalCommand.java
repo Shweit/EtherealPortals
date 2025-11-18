@@ -7,6 +7,7 @@ import com.shweit.etherealportals.model.Portal;
 import com.shweit.etherealportals.model.PortalGroup;
 import com.shweit.etherealportals.model.PortalIcon;
 import com.shweit.etherealportals.util.MessageUtils;
+import com.shweit.etherealportals.util.PortalItemUtils;
 import com.shweit.etherealportals.util.SkullUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,9 +55,12 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
       case "icon":
         handleIcon(sender, args);
         return true;
+      case "give":
+        handleGive(sender, args);
+        return true;
       default:
         MessageUtils.error(sender,
-            "Unknown category! Use &d/portal group &cor &d/portal icon&c.");
+            "Unknown category! Use &d/portal group&c, &d/portal icon&c, or &d/portal give&c.");
         return true;
     }
   }
@@ -298,6 +302,57 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
     }
   }
 
+  private void handleGive(CommandSender sender, String[] args) {
+    // Check permission
+    if (!sender.hasPermission("portal.item.give")) {
+      noPerm(sender);
+      return;
+    }
+
+    // Check arguments: /portal give <player> [name]
+    if (args.length < 2) {
+      MessageUtils.info(sender, "Usage: &d/portal give &b<player> &7[name]");
+      return;
+    }
+
+    // Get target player
+    Player target = Bukkit.getPlayer(args[1]);
+    if (target == null) {
+      MessageUtils.error(sender, "Player &d" + args[1] + "&c is not online.");
+      return;
+    }
+
+    // Get custom name if provided, otherwise use default
+    String itemName = plugin.getPortalItemName();
+    if (args.length >= 3) {
+      // Join remaining args as custom name
+      StringBuilder nameBuilder = new StringBuilder();
+      for (int i = 2; i < args.length; i++) {
+        if (i > 2) {
+          nameBuilder.append(" ");
+        }
+        nameBuilder.append(args[i]);
+      }
+      itemName = ChatColor.translateAlternateColorCodes('&', nameBuilder.toString());
+    }
+
+    // Create portal item
+    ItemStack item = PortalItemUtils.createPortalItem(
+        plugin,
+        plugin.getDefaultPortalTexture(),
+        itemName,
+        plugin.getPortalItemLore()
+    );
+
+    // Give item to player
+    target.getInventory().addItem(item);
+
+    // Success messages
+    MessageUtils.success(sender,
+        "Gave portal item to &d" + target.getName() + "&a!");
+    MessageUtils.success(target, "You received a portal item!");
+  }
+
   private void openIconList(Player player) {
     int size = 9 * ((plugin.getIconManager().getIcons().size() / 9) + 1);
     if (size > 54) {
@@ -334,7 +389,7 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
   public List<String> onTabComplete(CommandSender sender, Command command,
       String alias, String[] args) {
     if (args.length == 1) {
-      return partial(args[0], List.of("group", "icon"));
+      return partial(args[0], List.of("group", "icon", "give"));
     }
 
     // Group commands
@@ -422,6 +477,19 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4) {
           return Collections.singletonList("<base64_texture>");
         }
+      }
+    }
+
+    // Give command: /portal give <player> [name]
+    if (args[0].equalsIgnoreCase("give")) {
+      if (args.length == 2) {
+        // Tab-complete player names
+        return partial(args[1], Bukkit.getOnlinePlayers().stream()
+            .map(Player::getName)
+            .collect(Collectors.toList()));
+      }
+      if (args.length == 3) {
+        return Collections.singletonList("[portal_name]");
       }
     }
 

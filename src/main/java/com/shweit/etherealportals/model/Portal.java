@@ -12,6 +12,18 @@ public class Portal {
   private final String name;
   private final Location baseLocation; // block base
   private String iconName; // optional icon reference
+  private final boolean breakable; // whether this portal can be broken and dropped as item
+
+  /**
+   * Creates a new portal (defaults to non-breakable).
+   *
+   * @param name the portal name
+   * @param baseLocation the base location of the portal
+   * @param iconName the optional icon name
+   */
+  public Portal(String name, Location baseLocation, String iconName) {
+    this(name, baseLocation, iconName, false);
+  }
 
   /**
    * Creates a new portal.
@@ -19,11 +31,13 @@ public class Portal {
    * @param name the portal name
    * @param baseLocation the base location of the portal
    * @param iconName the optional icon name
+   * @param breakable whether this portal can be broken and dropped as item
    */
-  public Portal(String name, Location baseLocation, String iconName) {
+  public Portal(String name, Location baseLocation, String iconName, boolean breakable) {
     this.name = name;
     this.baseLocation = baseLocation.clone();
     this.iconName = iconName;
+    this.breakable = breakable;
   }
 
   public String getName() {
@@ -46,6 +60,10 @@ public class Portal {
     this.iconName = iconName;
   }
 
+  public boolean isBreakable() {
+    return breakable;
+  }
+
   /**
    * Serializes this portal to a configuration section.
    *
@@ -61,6 +79,7 @@ public class Portal {
     if (iconName != null) {
       section.set("icon", iconName);
     }
+    section.set("breakable", breakable);
   }
 
   /**
@@ -79,7 +98,8 @@ public class Portal {
     float pitch = (float) section.getDouble("pitch", 0.0);
     Location loc = new Location(world, x, y, z, yaw, pitch);
     String icon = section.getString("icon");
-    return new Portal(name, loc, icon);
+    boolean breakable = section.getBoolean("breakable", false);
+    return new Portal(name, loc, icon, breakable);
   }
 
   @Override

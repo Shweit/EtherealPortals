@@ -7,6 +7,7 @@ import com.shweit.etherealportals.model.Portal;
 import com.shweit.etherealportals.model.PortalGroup;
 import com.shweit.etherealportals.util.MessageUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -14,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 /** Blocks item interaction in plugin GUIs (simple protection). */
 public class InventoryClickListener implements Listener {
@@ -48,27 +50,35 @@ public class InventoryClickListener implements Listener {
       if (current == null || !current.hasItemMeta()) {
         return;
       }
-      String displayName = current.getItemMeta().getDisplayName();
-      String display = ChatColor.stripColor(displayName);
-      if (display == null || display.isEmpty()) {
+
+      // Read group and portal name from NBT
+      NamespacedKey groupKey = new NamespacedKey(plugin, "portal_group");
+      NamespacedKey portalKey = new NamespacedKey(plugin, "portal_name");
+      String groupName = current.getItemMeta().getPersistentDataContainer()
+          .get(groupKey, PersistentDataType.STRING);
+      String portalName = current.getItemMeta().getPersistentDataContainer()
+          .get(portalKey, PersistentDataType.STRING);
+
+      if (groupName == null || portalName == null) {
+        MessageUtils.error(player, "Invalid portal item.");
         return;
       }
-      teleportByName(player, display.toLowerCase());
+
+      teleportByGroupAndName(player, groupName, portalName);
     }
   }
 
-  private void teleportByName(Player player, String portalName) {
+  private void teleportByGroupAndName(Player player, String groupName, String portalName) {
     PortalManager pm = plugin.getPortalManager();
-    Portal target = null;
-    for (PortalGroup group : pm.getGroups()) {
-      Portal p = group.getPortal(portalName);
-      if (p != null) {
-        target = p;
-        break;
-      }
+    PortalGroup group = pm.getGroup(groupName);
+    if (group == null) {
+      MessageUtils.error(player, "Could not find portal group.");
+      return;
     }
+
+    Portal target = group.getPortal(portalName);
     if (target == null) {
-      MessageUtils.error(player, "Could not find portal &d" + portalName + "&c.");
+      MessageUtils.error(player, "Could not find portal.");
       return;
     }
     CooldownManager cm = plugin.getCooldownManager();

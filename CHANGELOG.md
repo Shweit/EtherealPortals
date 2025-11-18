@@ -5,6 +5,35 @@ All notable changes to Ethereal Portals will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-11-18
+
+### Added
+- **Craftable Portal Items**: Players can now craft Portal Crystals to create personal portals
+  - Crafting recipe: Nether Star + 4 Ender Pearls + 2 Amethyst Shards + 2 Crying Obsidian
+  - Rename items in anvil to customize portal group names
+  - Right-click on any block to place portals anywhere in the world
+  - Portal items are breakable - punch the invisible armor stand to retrieve the item
+  - `/portal give <player> [name]` command to give portal items to players
+  - Automatic portal numbering (e.g., "Home #1", "Home #2", etc.)
+  - Personal portal groups with format `playername:groupname` (e.g., "steve:home")
+  - Portal placement spawns visual effects and creates TextDisplay markers
+  - Armor stand markers at portal center for breakable portals
+
+### Changed
+- Portal selection GUI now uses NBT PersistentDataContainer to store group and portal names
+- InventoryClickListener reads NBT tags instead of parsing display names for more reliable lookups
+- Portal breaking event handler now uses HIGH priority to prevent other plugin interference
+- ArmorStand markers are now normal size (setSmall(false)) for better player interaction
+- SkullUtils now generates deterministic UUIDs for player heads based on texture data
+
+### Technical
+- Added `formatPortalDisplayName()` method in PlayerMoveListener for GUI display formatting
+- Updated PortalItemListener with improved portal number generation algorithm
+- Enhanced ArmorStand creation with better properties for breakable portal detection
+- Improved tag parsing to handle complex group name structures with multiple colons
+
+---
+
 ## [1.0.3] - 2025-11-17
 
 ### Fixed

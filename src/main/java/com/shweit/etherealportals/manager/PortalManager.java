@@ -78,7 +78,7 @@ public class PortalManager {
   }
 
   /**
-   * Adds a portal to a group.
+   * Adds a portal to a group (defaults to non-breakable).
    *
    * @param groupName the group name
    * @param portalName the portal name
@@ -87,8 +87,23 @@ public class PortalManager {
    * @return true if added, false if a portal with that name already exists
    */
   public boolean addPortal(String groupName, String portalName, Location loc, String icon) {
+    return addPortal(groupName, portalName, loc, icon, false);
+  }
+
+  /**
+   * Adds a portal to a group.
+   *
+   * @param groupName the group name
+   * @param portalName the portal name
+   * @param loc the portal location
+   * @param icon the optional icon name
+   * @param breakable whether the portal can be broken
+   * @return true if added, false if a portal with that name already exists
+   */
+  public boolean addPortal(String groupName, String portalName, Location loc,
+      String icon, boolean breakable) {
     PortalGroup group = createGroupIfAbsent(groupName);
-    return group.addPortal(new Portal(portalName, loc, icon));
+    return group.addPortal(new Portal(portalName, loc, icon, breakable));
   }
 
   /**
