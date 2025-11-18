@@ -175,16 +175,31 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
         }
         String groupName = args[2];
         String portalName = args[3];
+        // Get portal before removing to clean up visual entities
+        PortalGroup group = pm.getGroup(groupName);
+        if (group == null) {
+          MessageUtils.error(sender,
+              "Group &d" + groupName + "&c doesn't exist.");
+          return;
+        }
+        Portal portal = group.getPortal(portalName);
+        if (portal == null) {
+          MessageUtils.error(sender,
+              "Portal &d" + portalName + "&c doesn't exist in group &d"
+              + groupName + "&c.");
+          return;
+        }
+        // Clean up text display for this portal before removing
+        plugin.getVisualTask().removeTextDisplay(groupName, portalName, portal);
+        // Now remove the portal
         boolean removed = pm.removePortal(groupName, portalName);
         if (removed) {
-          // Clean up text display for this portal
-          plugin.getVisualTask().removeTextDisplay(groupName, portalName);
           MessageUtils.success(sender,
               "Portal &d" + portalName + "&a has been removed from group &d"
               + groupName + "&a.");
         } else {
           MessageUtils.error(sender,
-              "Portal &d" + portalName + "&c doesn't exist in group &d"
+              "Failed to remove portal &d" + portalName + "&c from group &d"
               + groupName + "&c.");
         }
         plugin.getDataManager().saveGroups();

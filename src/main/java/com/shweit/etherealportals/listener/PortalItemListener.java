@@ -207,6 +207,9 @@ public class PortalItemListener implements Listener {
       return;
     }
 
+    // Remove visual entities first (before removing portal object)
+    plugin.getVisualTask().removeTextDisplay(groupName, portalName, portal);
+
     // Remove portal from group
     group.removePortal(portalName);
 
@@ -217,9 +220,6 @@ public class PortalItemListener implements Listener {
 
     // Save groups
     plugin.getDataManager().saveGroups();
-
-    // Remove visual entities
-    plugin.getVisualTask().removeTextDisplay(groupName, portalName);
 
     // Drop portal item
     ItemStack droppedItem = PortalItemUtils.createPortalItem(
