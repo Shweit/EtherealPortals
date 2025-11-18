@@ -4,10 +4,12 @@ A mystical portal plugin for Minecraft that allows players to create custom port
 
 ## Features
 
+- **Craftable Portal Items**: Players can craft portal crystals and place them anywhere! 🆕
 - **Portal Groups**: Organize portals into logical groups for seamless travel
 - **Smart Teleportation**: Automatic teleport between 2 portals, GUI selection for 3+ portals
 - **Custom Icons**: Use custom player head textures for portal icons in the GUI
 - **Visual Effects**: Beautiful particle spirals and floating text displays at portal locations
+- **Breakable Portals**: Portal items can be broken to retrieve the item back 🆕
 - **Cooldown System**: Configurable teleportation cooldowns to prevent spam
 - **Flexible Hitbox**: Adjustable portal detection area (width, depth, height)
 - **Tab Completion**: Full tab completion for all commands including coordinates
@@ -48,6 +50,12 @@ A mystical portal plugin for Minecraft that allows players to create custom port
 | `/portal icon remove <name>` | Remove a custom icon | `portal.icon.remove` |
 | `/portal icon list` | View all custom icons in a GUI | `portal.icon.list` |
 
+### Portal Items 🆕
+
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/portal give <player> [name]` | Give a portal item to a player (with optional custom name) | `portal.item.give` |
+
 ### Coordinate Syntax
 
 When adding portals, you can use:
@@ -69,6 +77,9 @@ Tab completion will suggest your current coordinates for convenience!
 | `portal.icon.add` | Add custom icons | Op |
 | `portal.icon.remove` | Remove custom icons | Op |
 | `portal.icon.list` | View icon list | Op |
+| `portal.item.give` | Give portal items to players 🆕 | Op |
+| `portal.item.place` | Place portal items 🆕 | All players |
+| `portal.item.break` | Break placed portal items 🆕 | All players |
 
 ## Configuration
 
@@ -83,6 +94,18 @@ portal:
   teleport:
     cooldownSeconds: 3        # Seconds between teleports
     messageCooldownSeconds: 1 # Seconds between cooldown messages
+  gui:
+    title: "§d§lSelect Portal"  # GUI title with color codes
+    show-coordinates: true       # Show coordinates in portal GUI
+    show-world: true             # Show world name in portal GUI
+  craftablePortals:              # 🆕 Portal Item System
+    enabled: true                # Enable/disable craftable portal items
+    defaultTexture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjBiZmMyNTc3ZjZlMjZjNmM2ZjczNjVjMmM0MDc2YmNjZWU2NTMxMjQ5ODkzODJjZTkzYmNhNGZjOWUzOWIifX19"
+    item:
+      name: "§d§lPortal Crystal"  # Display name of the portal item
+      lore:
+        - "§7Place to create a personal portal"
+        - "§7Rename in anvil to customize"
 ```
 
 ## Usage Examples
@@ -133,6 +156,59 @@ portal:
    /portal group add kingdoms MainCastle 100 65 100 world castle
    ```
 
+### Using Portal Items 🆕
+
+**Crafting Recipe:**
+
+```
+[Ender Pearl]     [Crying Obsidian]  [Ender Pearl]
+[Amethyst Shard]  [Nether Star]      [Amethyst Shard]
+[Ender Pearl]     [Crying Obsidian]  [Ender Pearl]
+```
+
+**Creating Personal Portals:**
+
+1. **Craft a Portal Crystal** using the recipe above
+
+2. **Rename it in an Anvil** (optional):
+   - Rename the item to "Home" for a home portal network
+   - Or "Shop" for a shopping portal network
+   - The item name becomes the portal group name!
+
+3. **Place the first portal**:
+   - Right-click on any block with the Portal Crystal
+   - A portal named "Home #1" appears with visual effects
+   - Message: `Portal #1 created in group Home! (1 total)`
+
+4. **Place the second portal**:
+   - Take another Portal Crystal (same name "Home")
+   - Right-click on a different location
+   - Portal "Home #2" is created
+   - Message: `Portal #2 created in group Home! (2 total)`
+
+5. **Use your portals**:
+   - Walk into "Home #1" → teleport to "Home #2"
+   - Walk into "Home #2" → teleport to "Home #1"
+   - With 3+ portals, a GUI appears for selection!
+
+6. **Breaking portals**:
+   - Punch the invisible armor stand at the portal center
+   - The Portal Crystal item drops back
+   - Reuse it somewhere else!
+
+**Portal Naming Logic:**
+- Item name = Portal group name (e.g., "Home", "Shop", "Farm")
+- Portal numbers are auto-generated (#1, #2, #3, etc.)
+- All portals with the same item name are linked together
+- Each player has their own groups: `playername:home`, `playername:shop`
+
+**Command Alternative:**
+
+Give yourself a portal item directly:
+```
+/portal give PlayerName Home
+```
+
 ## How It Works
 
 ### Portal Detection
@@ -144,6 +220,26 @@ Portals are detected when a player enters the configured hitbox area around a po
 - **2 Portals in Group**: Direct teleport to the other portal (0.5s delay)
 - **3+ Portals in Group**: Opens a GUI to select destination
 - **Cooldown**: Prevents repeated teleportation (configurable, default 3s)
+
+### Portal Items System 🆕
+
+**How Portal Items Work:**
+1. **Crafting**: Combine 1 Nether Star, 4 Ender Pearls, 2 Amethyst Shards, and 2 Crying Obsidian
+2. **Naming**: Rename in anvil to set the portal group name (e.g., "Home", "Shop")
+3. **Placement**: Right-click on a block to place the portal (+1 block above clicked position)
+4. **Group Creation**: Automatically creates group `playername:groupname` (e.g., `steve:home`)
+5. **Portal Numbering**: Portals are automatically numbered (#1, #2, #3, etc.)
+6. **Breaking**: Punch the invisible armor stand to retrieve the Portal Crystal
+
+**Breakable vs Non-Breakable:**
+- **Portal Items**: Set `breakable: true` - can be broken to drop the item
+- **Command Portals**: Set `breakable: false` - protected from breaking
+- Only portal items placed by players can be broken
+
+**Visual Markers:**
+- **Text Display**: Shows portal name 3 blocks above (e.g., "Home #1")
+- **Armor Stand**: Invisible marker at portal center for breaking detection
+- **Particle Effects**: Same spiral effects as command-created portals
 
 ### Visual Effects
 
@@ -161,9 +257,26 @@ Portal and group names are stored with their original capitalization, but lookup
 
 ## Data Storage
 
-All data is stored in JSON format:
-- **Portals**: `plugins/EtherealPortals/groups.json`
-- **Icons**: `plugins/EtherealPortals/icons.json`
+All data is stored in YAML format:
+- **Portals**: `plugins/EtherealPortals/groups.yml`
+- **Icons**: `plugins/EtherealPortals/icons.yml`
+- **Config**: `plugins/EtherealPortals/config.yml`
+
+**Portal Data Structure:**
+Each portal now includes a `breakable` field:
+```yaml
+groups:
+  steve:home:
+    portals:
+      "1":
+        world: world
+        x: 100.0
+        y: 65.0
+        z: 200.0
+        yaw: 0.0
+        pitch: 0.0
+        breakable: true  # true for portal items, false for command portals
+```
 
 Data is automatically saved when changes are made and loaded on server startup.
 

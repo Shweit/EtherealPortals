@@ -30,6 +30,7 @@ permissions:
       portal.icon.add: true
       portal.icon.remove: true
       portal.icon.list: true
+      portal.item.give: true
 
   # Base permission
   portal.use:
@@ -69,6 +70,20 @@ permissions:
   portal.icon.list:
     description: Allows viewing all icons
     default: op
+
+  # Portal item permissions
+  portal.item.give:
+    description: Allows giving portal items to players
+    default: op
+
+  portal.item.place:
+    description: Allows placing portal items
+    default: true
+
+  portal.item.break:
+    description: Allows breaking portal items
+    default: true
+
   portal.group.use.*:
     description: Allows using all portal groups
     default: true
