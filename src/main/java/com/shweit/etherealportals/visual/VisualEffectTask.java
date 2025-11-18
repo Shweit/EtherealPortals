@@ -73,32 +73,42 @@ public class VisualEffectTask implements Runnable {
 
   /**
    * Removes the text display and armor stand marker for a specific portal.
+   * Loads the chunk at the portal location to ensure entities are found even if far away.
    *
    * @param groupName The name of the group
    * @param portalName The name of the portal whose display should be removed
+   * @param portal The portal object containing the location
    */
-  public void removeTextDisplay(String groupName, String portalName) {
+  public void removeTextDisplay(String groupName, String portalName,
+      com.shweit.etherealportals.model.Portal portal) {
     String textTag = "ep_portal:" + groupName.toLowerCase() + ":" + portalName.toLowerCase();
     String markerTag = "ep_portal_marker:" + groupName.toLowerCase()
         + ":" + portalName.toLowerCase();
-    Bukkit.getWorlds().forEach(world -> {
-      world.getEntitiesByClass(TextDisplay.class).stream()
-          .filter(td -> td.getScoreboardTags().contains(textTag))
-          .forEach(Entity::remove);
-      world.getEntitiesByClass(ArmorStand.class).stream()
-          .filter(as -> as.getScoreboardTags().contains(markerTag))
-          .forEach(Entity::remove);
-    });
+
+    // Load the chunk at portal location to ensure entities are found
+    Location portalLoc = portal.getBaseLocation();
+    if (!portalLoc.isChunkLoaded()) {
+      portalLoc.getChunk().load();
+    }
+
+    // Remove entities in the portal's world
+    portalLoc.getWorld().getEntitiesByClass(TextDisplay.class).stream()
+        .filter(td -> td.getScoreboardTags().contains(textTag))
+        .forEach(Entity::remove);
+    portalLoc.getWorld().getEntitiesByClass(ArmorStand.class).stream()
+        .filter(as -> as.getScoreboardTags().contains(markerTag))
+        .forEach(Entity::remove);
   }
 
   /**
    * Removes all text displays for all portals in a group.
+   * Loads chunks as needed to ensure all entities are found.
    *
    * @param group The portal group whose displays should be removed
    */
   public void removeGroupTextDisplays(PortalGroup group) {
     group.getPortals().forEach(portal ->
-        removeTextDisplay(group.getName(), portal.getName()));
+        removeTextDisplay(group.getName(), portal.getName(), portal));
   }
 
   /**
