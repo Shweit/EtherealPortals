@@ -80,7 +80,8 @@ public class PortalItemListener implements Listener {
     if (stripped == null || stripped.isEmpty()) {
       groupBaseName = "portals";
     } else {
-      groupBaseName = stripped.replace(":", "").trim(); // Remove colons
+      groupBaseName = stripped.replace(":", "")
+        .replace(" ", "_").trim(); // Remove colons, replace spaces
       if (groupBaseName.isEmpty()) {
         groupBaseName = "portals";
       }
