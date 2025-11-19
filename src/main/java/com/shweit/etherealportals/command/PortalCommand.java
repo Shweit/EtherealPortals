@@ -126,26 +126,47 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
           MessageUtils.error(sender, "This command can only be used by players.");
           return;
         }
-        if (args.length < 7) {
+        if (args.length < 4) {
           MessageUtils.info(sender,
-              "Usage: &d/portal group add &b<group> <name> <x> <y> <z> "
-              + "&7[world] [icon]");
+              "Usage: &d/portal group add &b<group> <name> &7[x] [y] [z] [world] [icon]");
+          MessageUtils.info(sender,
+              "Omit coordinates to use your current location.");
           return;
         }
         Player p = (Player) sender;
         String group = args[2];
         String name = args[3];
-        double x = MessageUtils.parseRelative(p, args[4], p.getLocation().getX());
-        double y = MessageUtils.parseRelative(p, args[5], p.getLocation().getY());
-        double z = MessageUtils.parseRelative(p, args[6], p.getLocation().getZ());
-        World world = p.getWorld();
-        if (args.length >= 8) {
-          World w = Bukkit.getWorld(args[7]);
-          if (w != null) {
-            world = w;
+
+        // Use player location if no coordinates provided
+        double x;
+        double y;
+        double z;
+        World world;
+        String icon;
+
+        if (args.length >= 7) {
+          // Coordinates provided
+          x = MessageUtils.parseRelative(p, args[4], p.getLocation().getX());
+          y = MessageUtils.parseRelative(p, args[5], p.getLocation().getY());
+          z = MessageUtils.parseRelative(p, args[6], p.getLocation().getZ());
+          world = p.getWorld();
+          if (args.length >= 8) {
+            World w = Bukkit.getWorld(args[7]);
+            if (w != null) {
+              world = w;
+            }
           }
+          icon = args.length >= 9 ? args[8] : null;
+        } else {
+          // No coordinates - use player location
+          Location loc = p.getLocation();
+          x = loc.getX();
+          y = loc.getY();
+          z = loc.getZ();
+          world = loc.getWorld();
+          // Icon can be provided as 5th argument (args[4]) if no coordinates given
+          icon = args.length >= 5 ? args[4] : null;
         }
-        String icon = args.length >= 9 ? args[8] : null;
         Location portalLoc = new Location(world, Math.floor(x), Math.floor(y), Math.floor(z));
         boolean added = pm.addPortal(group, name, portalLoc, icon);
         if (added) {
@@ -421,7 +442,7 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
         return partial(args[2], getGroupNames());
       }
 
-      // /portal group add <group> <name> <x> <y> <z> [world] [icon]
+      // /portal group add <group> <name> [x] [y] [z] [world] [icon]
       if (subCmd.equals("add")) {
         if (args.length == 3) {
           return partial(args[2], getGroupNames());
@@ -429,14 +450,21 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
         if (args.length == 4) {
           return Collections.singletonList("<portal_name>");
         }
-        if (args.length >= 5 && args.length <= 7 && sender instanceof Player) {
+        if (args.length == 5 && sender instanceof Player) {
+          // Can be either x coordinate or icon name (if using player location)
+          Player p = (Player) sender;
+          List<String> suggestions = new ArrayList<>();
+          suggestions.add(String.valueOf((int) p.getLocation().getX()));
+          suggestions.add("~");
+          suggestions.addAll(getIconNames());
+          return partial(args[4], suggestions);
+        }
+        if (args.length >= 6 && args.length <= 7 && sender instanceof Player) {
           Player p = (Player) sender;
           Location loc = p.getLocation();
-          int index = args.length - 5; // 0=x, 1=y, 2=z
+          int index = args.length - 5; // 1=y, 2=z
           String coord;
-          if (index == 0) {
-            coord = String.valueOf((int) loc.getX());
-          } else if (index == 1) {
+          if (index == 1) {
             coord = String.valueOf((int) loc.getY());
           } else {
             coord = String.valueOf((int) loc.getZ());
