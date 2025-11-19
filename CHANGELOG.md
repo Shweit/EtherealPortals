@@ -5,6 +5,32 @@ All notable changes to Ethereal Portals will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-11-19
+
+### Changed
+- **Configuration Structure**: Default portal texture moved from `portal.craftablePortals.defaultTexture` to `portal.defaultTexture`
+  - Centralizes texture configuration for use across all portal visualizations (GUIs, craftable items, etc.)
+  - Improves maintainability and reduces code duplication
+  - **Note**: Existing configs need manual update or delete config.yml to regenerate with new structure
+- Comprehensive inline documentation added to config.yml explaining all configuration options
+
+### Fixed
+- Portal item group names now replace spaces with underscores to prevent parsing issues
+  - Ensures consistent group name formatting across the plugin
+  - Prevents edge cases where spaces could cause lookup failures
+- Improved portal items functionality and reliability
+  - Enhanced TextDisplay entity management in VisualEffectTask
+  - Better handling of portal placement and visual effects
+  - More robust ArmorStand marker creation
+
+### Technical
+- Removed hardcoded `DEFAULT_TEXTURE` constant from SkullUtils.java
+- Removed `createDefaultIcon()` method in favor of config-based texture parameter
+- All portal icon generation now uses centralized configuration value
+- Updated PlayerMoveListener to read texture from plugin configuration
+
+---
+
 ## [1.1.0] - 2025-11-18
 
 ### Added
