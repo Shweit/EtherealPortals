@@ -104,10 +104,10 @@ public class PlayerMoveListener implements Listener {
             if (icon != null) {
               item = SkullUtils.createHead(icon.getBase64(), coloredDisplayName);
             } else {
-              item = SkullUtils.createDefaultIcon(coloredDisplayName);
+              item = SkullUtils.createHead(plugin.getDefaultPortalTexture(), coloredDisplayName);
             }
           } else {
-            item = SkullUtils.createDefaultIcon(coloredDisplayName);
+            item = SkullUtils.createHead(plugin.getDefaultPortalTexture(), coloredDisplayName);
           }
           ItemMeta meta = item.getItemMeta();
           if (meta != null) {

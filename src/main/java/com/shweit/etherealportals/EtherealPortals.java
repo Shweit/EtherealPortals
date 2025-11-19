@@ -182,7 +182,7 @@ public class EtherealPortals extends JavaPlugin {
     hitboxDepth = getConfig().getDouble("portal.hitbox.depth", 2.0);
     hitboxHeight = getConfig().getDouble("portal.hitbox.height", 2.0);
     craftablePortalsEnabled = getConfig().getBoolean("portal.craftablePortals.enabled", true);
-    defaultPortalTexture = getConfig().getString("portal.craftablePortals.defaultTexture",
+    defaultPortalTexture = getConfig().getString("portal.defaultTexture",
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3Rle"
         + "HR1cmUvYjBiZmMyNTc3ZjZlMjZjNmM2ZjczNjVjMmM0MDc2YmNjZWU2NTMxMjQ5ODkzODJjZTkzYmNhNGZj"
         + "OWUzOWIifX19");

@@ -14,23 +14,7 @@ import org.bukkit.profile.PlayerTextures;
 
 /** Utility to create a custom textured player head from base64 texture value. */
 public final class SkullUtils {
-  // Default portal icon texture (purple portal-like design)
-  private static final String DEFAULT_TEXTURE =
-      "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQu"
-      + "bmV0L3RleHR1cmUvYjBiZmMyNTc3ZjZlMjZjNmM2ZjczNjVjMmM0MDc2YmNjZWU2NTMxMjQ5ODkzODJ"
-      + "jZTkzYmNhNGZjOWUzOWIifX19";
-
   private SkullUtils() {}
-
-  /**
-   * Creates a default portal icon with the standard texture.
-   *
-   * @param displayName the display name for the icon
-   * @return ItemStack with the default portal texture
-   */
-  public static ItemStack createDefaultIcon(String displayName) {
-    return createHead(DEFAULT_TEXTURE, displayName);
-  }
 
   /**
    * Creates a custom player head with a base64-encoded texture.
