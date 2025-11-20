@@ -12,6 +12,7 @@ import com.shweit.etherealportals.manager.IconManager;
 import com.shweit.etherealportals.manager.PortalManager;
 import com.shweit.etherealportals.util.MessageUtils;
 import com.shweit.etherealportals.util.PortalItemUtils;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
@@ -156,11 +157,17 @@ public class EtherealPortals extends JavaPlugin {
         getConfig().getInt("portal.teleport.cooldownSeconds", 3),
         getConfig().getInt("portal.teleport.messageCooldownSeconds", 1));
     dataManager = new DataManager(this, portalManager, iconManager);
+    
     registerCommands();
     registerListeners();
     registerCraftingRecipe();
+    
     visualTask = new com.shweit.etherealportals.visual.VisualEffectTask(this);
     visualTask.start();
+
+    // Initialize bStats metrics
+    new Metrics(this, 28067);
+
     MessageUtils.send(getServer().getConsoleSender(), "Plugin enabled.");
   }
 
