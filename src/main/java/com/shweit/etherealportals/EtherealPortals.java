@@ -12,6 +12,7 @@ import com.shweit.etherealportals.manager.IconManager;
 import com.shweit.etherealportals.manager.PortalManager;
 import com.shweit.etherealportals.util.MessageUtils;
 import com.shweit.etherealportals.util.PortalItemUtils;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
@@ -165,8 +166,7 @@ public class EtherealPortals extends JavaPlugin {
     visualTask.start();
 
     // Initialize bStats metrics
-    int pluginId = 28066;
-    new Metrics(this, pluginId);
+    new Metrics(this, 28067);
 
     MessageUtils.send(getServer().getConsoleSender(), "Plugin enabled.");
   }

@@ -62,6 +62,14 @@ repositories {
         }
     }
 
+    maven {
+        name = 'codemc'
+        url = 'https://repo.codemc.io/repository/maven-public/'
+        content {
+            includeGroup("org.bstats")
+        }
+    }
+
     mavenCentral()
 }
 
@@ -120,7 +128,7 @@ tasks.withType(SpotBugsTask).configureEach {
 shadowJar {
     archiveClassifier.set('')
     relocate 'io.papermc.lib', 'shadow.io.papermc.paperlib'
-    relocate 'org.bstats', 'com.shweit.chestsorter.bstats'
+    relocate 'org.bstats', 'com.shweit.etherealportals.bstats'
     minimize()
 }
 
