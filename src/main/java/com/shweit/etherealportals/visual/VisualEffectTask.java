@@ -140,7 +140,7 @@ public class VisualEffectTask implements Runnable {
       d.setBillboard(Display.Billboard.CENTER);
       d.setSeeThrough(true);
       d.setShadowed(true);
-      d.setViewRange(50);
+      d.setViewRange(10);
       d.addScoreboardTag(tag);
     });
   }
