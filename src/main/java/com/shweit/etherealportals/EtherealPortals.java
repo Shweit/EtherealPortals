@@ -156,11 +156,18 @@ public class EtherealPortals extends JavaPlugin {
         getConfig().getInt("portal.teleport.cooldownSeconds", 3),
         getConfig().getInt("portal.teleport.messageCooldownSeconds", 1));
     dataManager = new DataManager(this, portalManager, iconManager);
+    
     registerCommands();
     registerListeners();
     registerCraftingRecipe();
+    
     visualTask = new com.shweit.etherealportals.visual.VisualEffectTask(this);
     visualTask.start();
+
+    // Initialize bStats metrics
+    int pluginId = 28066;
+    new Metrics(this, pluginId);
+
     MessageUtils.send(getServer().getConsoleSender(), "Plugin enabled.");
   }
 
