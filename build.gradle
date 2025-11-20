@@ -62,14 +62,6 @@ repositories {
         }
     }
 
-    maven {
-        name = 'codemc'
-        url = 'https://repo.codemc.io/repository/maven-public/'
-        content {
-            includeGroup("org.bstats")
-        }
-    }
-
     mavenCentral()
 }
 
