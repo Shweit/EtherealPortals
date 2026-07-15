@@ -6,7 +6,7 @@ import com.shweit.etherealportals.manager.PortalManager;
 import com.shweit.etherealportals.model.Portal;
 import com.shweit.etherealportals.model.PortalGroup;
 import com.shweit.etherealportals.util.MessageUtils;
-import org.bukkit.ChatColor;
+import com.shweit.etherealportals.util.TextUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -37,7 +37,7 @@ public class InventoryClickListener implements Listener {
    */
   @EventHandler
   public void onClick(InventoryClickEvent event) {
-    String title = event.getView().getTitle();
+    String title = TextUtils.plain(event.getView().title());
     if (title.contains("Icons")) {
       event.setCancelled(true);
     } else if (title.contains("Select Portal")) {

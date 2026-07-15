@@ -18,10 +18,10 @@ jobs:
       - name: Common Setup
         uses: ./.github/actions/common-setup
         with:
-          java-version: 21
+          java-version: 25
 
       - name: Build with Gradle
-        run: ./gradlew -Pver=${{ github.ref_name }} shadowJar
+        run: ./gradlew -Pver="${{ github.ref_name }}" shadowJar
 
       - name: Get version from tag
         id: version
@@ -29,13 +29,13 @@ jobs:
           VERSION="${{ github.ref_name }}"
           # Remove 'v' prefix if present
           VERSION="${VERSION#v}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Find JAR file
         id: jar
         run: |
           JAR_PATH=$(find build/libs -name "*.jar" -type f | head -n 1)
-          echo "path=$JAR_PATH" >> $GITHUB_OUTPUT
+          echo "path=$JAR_PATH" >> "$GITHUB_OUTPUT"
           echo "Found JAR: $JAR_PATH"
 
       - name: Upload to Modrinth & CurseForge
@@ -53,18 +53,16 @@ jobs:
           version: ${{ steps.version.outputs.version }}
           version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
 
-          game-versions: ">=1.21"
+          game-versions: "26.2"
 
           loaders: |
             paper
-            spigot
             purpur
-            folia
 
           changelog: ${{ github.event.release.body }}
 
           java: |
-            21
+            25
 
       - name: Report success
         if: success()

@@ -14,8 +14,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -369,7 +371,7 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
         }
         nameBuilder.append(args[i]);
       }
-      itemName = ChatColor.translateAlternateColorCodes('&', nameBuilder.toString());
+      itemName = nameBuilder.toString();
     }
 
     // Create portal item
@@ -395,18 +397,20 @@ public class PortalCommand implements CommandExecutor, TabCompleter {
       size = 54;
     }
     Inventory inv = Bukkit.createInventory(player, size,
-        ChatColor.DARK_PURPLE + "Icons");
+        Component.text("Icons", NamedTextColor.DARK_PURPLE));
     for (PortalGroup group : plugin.getPortalManager().getGroups()) {
       // no icons here, skip
     }
     plugin.getIconManager().getIcons().forEach(icon -> {
       ItemStack head = SkullUtils.createHead(icon.getBase64(),
-          ChatColor.LIGHT_PURPLE + icon.getName());
+          Component.text(icon.getName(), NamedTextColor.LIGHT_PURPLE)
+              .decoration(TextDecoration.ITALIC, false));
       ItemMeta meta = head.getItemMeta();
       if (meta != null) {
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.GRAY + "Custom Icon");
-        meta.setLore(lore);
+        List<Component> lore = new ArrayList<>();
+        lore.add(Component.text("Custom Icon", NamedTextColor.GRAY)
+            .decoration(TextDecoration.ITALIC, false));
+        meta.lore(lore);
         if (!head.setItemMeta(meta)) {
           plugin.getLogger().warning("Failed to set item meta for icon: "
               + icon.getName());

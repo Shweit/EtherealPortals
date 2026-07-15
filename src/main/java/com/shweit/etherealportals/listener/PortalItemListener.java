@@ -6,7 +6,7 @@ import com.shweit.etherealportals.model.Portal;
 import com.shweit.etherealportals.model.PortalGroup;
 import com.shweit.etherealportals.util.MessageUtils;
 import com.shweit.etherealportals.util.PortalItemUtils;
-import org.bukkit.ChatColor;
+import com.shweit.etherealportals.util.TextUtils;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
@@ -74,8 +74,7 @@ public class PortalItemListener implements Listener {
     Location loc = clickedBlock.getLocation().add(0, 1, 0);
 
     // Extract group name from item display name
-    String displayName = item.getItemMeta().getDisplayName();
-    String stripped = ChatColor.stripColor(displayName);
+    String stripped = TextUtils.plain(item.getItemMeta().displayName());
     String groupBaseName;
     if (stripped == null || stripped.isEmpty()) {
       groupBaseName = "portals";

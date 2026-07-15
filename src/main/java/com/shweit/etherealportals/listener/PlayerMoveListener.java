@@ -14,8 +14,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -87,7 +89,7 @@ public class PlayerMoveListener implements Listener {
     int options = group.getPortals().size() - 1;
     int rows = Math.min(6, Math.max(1, (int) Math.ceil(options / 9.0)));
     int size = rows * 9;
-    String title = ChatColor.DARK_PURPLE + "Select Portal";
+    Component title = Component.text("Select Portal", NamedTextColor.DARK_PURPLE);
     Inventory inv = Bukkit.createInventory(player, size, title);
     IconManager im = plugin.getIconManager();
     group.getPortals().stream()
@@ -95,7 +97,9 @@ public class PlayerMoveListener implements Listener {
         .forEach(portal -> {
           // Create nice display name (e.g., "Home #1" instead of just "1")
           String displayName = formatPortalDisplayName(group.getName(), portal.getName());
-          String coloredDisplayName = ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + displayName;
+          Component coloredDisplayName = Component
+              .text(displayName, NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD)
+              .decoration(TextDecoration.ITALIC, false);
 
           ItemStack item;
           String iconName = portal.getIconName();
@@ -112,7 +116,7 @@ public class PlayerMoveListener implements Listener {
           ItemMeta meta = item.getItemMeta();
           if (meta != null) {
             if (!meta.hasDisplayName()) {
-              meta.setDisplayName(coloredDisplayName);
+              meta.displayName(coloredDisplayName);
             }
 
             // Store group and portal name in NBT for reliable lookup
@@ -123,13 +127,16 @@ public class PlayerMoveListener implements Listener {
             meta.getPersistentDataContainer().set(portalKey, PersistentDataType.STRING,
                 portal.getName());
 
-            List<String> lore = new ArrayList<>();
-            lore.add(" ");
-            lore.add(ChatColor.GRAY + MessageUtils.formatCoords(portal.getBaseLocation()));
-            lore.add(ChatColor.GRAY + portal.getBaseLocation().getWorld().getName());
-            lore.add(" ");
-            lore.add(ChatColor.GREEN + "Click to teleport!");
-            meta.setLore(lore);
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text(" ").decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text(MessageUtils.formatCoords(portal.getBaseLocation()),
+                NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text(portal.getBaseLocation().getWorld().getName(),
+                NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text(" ").decoration(TextDecoration.ITALIC, false));
+            lore.add(Component.text("Click to teleport!", NamedTextColor.GREEN)
+                .decoration(TextDecoration.ITALIC, false));
+            meta.lore(lore);
             if (!item.setItemMeta(meta)) {
               plugin.getLogger().warning(
                   "Failed to set item meta for portal: " + portal.getName());

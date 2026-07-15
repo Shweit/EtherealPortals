@@ -21,18 +21,20 @@ jobs:
         uses: ./.github/actions/common-setup
 
       - name: Retrieve Project Name
-        run: echo "PROJECT_NAME=$(${{github.workspace}}/gradlew -q printProjectName)" >> $GITHUB_ENV
+        run: |
+          PROJECT_NAME="$("${{ github.workspace }}/gradlew" -q printProjectName)"
+          echo "PROJECT_NAME=$PROJECT_NAME" >> "$GITHUB_ENV"
         id: project_name
 
       - name: Set pre-release environment
         if: ${{ github.event.release.prerelease }}
         run: |
-          echo "RELEASE_TYPE=pre-release" >> $GITHUB_ENV
+          echo "RELEASE_TYPE=pre-release" >> "$GITHUB_ENV"
 
       - name: Set release environment
         if: ${{ !github.event.release.prerelease }}
         run: |
-          echo "RELEASE_TYPE=release" >> $GITHUB_ENV
+          echo "RELEASE_TYPE=release" >> "$GITHUB_ENV"
 
       - name: Notify
         uses: appleboy/discord-action@v1.2.0

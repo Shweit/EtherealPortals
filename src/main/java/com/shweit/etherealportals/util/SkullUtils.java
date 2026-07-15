@@ -1,15 +1,18 @@
 package com.shweit.etherealportals.util;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.profile.PlayerProfile;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.profile.PlayerTextures;
 
 /** Utility to create a custom textured player head from base64 texture value. */
@@ -20,32 +23,33 @@ public final class SkullUtils {
    * Creates a custom player head with a base64-encoded texture.
    *
    * @param base64 the base64-encoded texture value
-   * @param displayName the display name for the head
+   * @param displayName the display name component for the head
    * @return ItemStack with the custom texture
    */
-  public static ItemStack createHead(String base64, String displayName) {
+  public static ItemStack createHead(String base64, Component displayName) {
     ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-    SkullMeta meta = (SkullMeta) head.getItemMeta();
+    ItemMeta meta = head.getItemMeta();
+    ResolvableProfile resolvableProfile = null;
 
     if (displayName != null) {
-      meta.setDisplayName(displayName);
+      meta.displayName(displayName);
     }
 
     if (base64 != null && !base64.isEmpty()) {
       try {
         // Create a deterministic UUID based on the texture so items with the same texture stack
         UUID textureUuid = UUID.nameUUIDFromBytes(base64.getBytes(StandardCharsets.UTF_8));
-        PlayerProfile profile = Bukkit.createPlayerProfile(textureUuid, "");
+        PlayerProfile profile = Bukkit.createProfile(textureUuid, "");
         PlayerTextures textures = profile.getTextures();
 
         // Decode base64 to get the texture URL
         String textureUrl = getTextureUrlFromBase64(base64);
         if (textureUrl != null) {
-          textures.setSkin(new URL(textureUrl));
+          textures.setSkin(URI.create(textureUrl).toURL());
           profile.setTextures(textures);
-          meta.setOwnerProfile(profile);
+          resolvableProfile = ResolvableProfile.resolvableProfile(profile);
         }
-      } catch (MalformedURLException e) {
+      } catch (IllegalArgumentException | MalformedURLException e) {
         System.err.println("Invalid texture URL: " + e.getMessage());
       }
     }
@@ -53,6 +57,9 @@ public final class SkullUtils {
     if (!head.setItemMeta(meta)) {
       // This should never happen for valid SkullMeta, but handle return value for SpotBugs
       System.err.println("Failed to set skull meta");
+    }
+    if (resolvableProfile != null) {
+      head.setData(DataComponentTypes.PROFILE, resolvableProfile);
     }
     return head;
   }

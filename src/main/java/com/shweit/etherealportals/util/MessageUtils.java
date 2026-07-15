@@ -1,15 +1,18 @@
 package com.shweit.etherealportals.util;
 
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 /** Utility for formatted messages. */
 public final class MessageUtils {
-  private static final String PREFIX = ChatColor.DARK_PURPLE + "["
-      + ChatColor.LIGHT_PURPLE + "Ethereal Portals"
-      + ChatColor.DARK_PURPLE + "]" + ChatColor.RESET + " ";
+  private static final Component PREFIX = Component.text()
+      .append(Component.text("[", NamedTextColor.DARK_PURPLE))
+      .append(Component.text("Ethereal Portals", NamedTextColor.LIGHT_PURPLE))
+      .append(Component.text("] ", NamedTextColor.DARK_PURPLE))
+      .build();
 
   private MessageUtils() {}
 
@@ -20,7 +23,7 @@ public final class MessageUtils {
    * @param msg the message (supports color codes with &)
    */
   public static void send(CommandSender sender, String msg) {
-    sender.sendMessage(PREFIX + ChatColor.translateAlternateColorCodes('&', msg));
+    sender.sendMessage(PREFIX.append(TextUtils.fromLegacy(msg)));
   }
 
   /**
@@ -30,8 +33,7 @@ public final class MessageUtils {
    * @param msg the message (supports color codes with &)
    */
   public static void success(CommandSender sender, String msg) {
-    sender.sendMessage(PREFIX + ChatColor.GREEN
-        + ChatColor.translateAlternateColorCodes('&', msg));
+    sender.sendMessage(coloredMessage(msg, NamedTextColor.GREEN));
   }
 
   /**
@@ -41,8 +43,7 @@ public final class MessageUtils {
    * @param msg the message (supports color codes with &)
    */
   public static void error(CommandSender sender, String msg) {
-    sender.sendMessage(PREFIX + ChatColor.RED
-        + ChatColor.translateAlternateColorCodes('&', msg));
+    sender.sendMessage(coloredMessage(msg, NamedTextColor.RED));
   }
 
   /**
@@ -52,8 +53,7 @@ public final class MessageUtils {
    * @param msg the message (supports color codes with &)
    */
   public static void info(CommandSender sender, String msg) {
-    sender.sendMessage(PREFIX + ChatColor.GRAY
-        + ChatColor.translateAlternateColorCodes('&', msg));
+    sender.sendMessage(coloredMessage(msg, NamedTextColor.GRAY));
   }
 
   /**
@@ -63,8 +63,7 @@ public final class MessageUtils {
    * @param msg the message (supports color codes with &)
    */
   public static void warning(CommandSender sender, String msg) {
-    sender.sendMessage(PREFIX + ChatColor.YELLOW
-        + ChatColor.translateAlternateColorCodes('&', msg));
+    sender.sendMessage(coloredMessage(msg, NamedTextColor.YELLOW));
   }
 
   /**
@@ -74,8 +73,10 @@ public final class MessageUtils {
    * @param portalName the portal name
    */
   public static void teleport(CommandSender sender, String portalName) {
-    sender.sendMessage(PREFIX + ChatColor.GRAY + "Teleporting to "
-        + ChatColor.LIGHT_PURPLE + portalName + ChatColor.GRAY + "...");
+    sender.sendMessage(PREFIX
+        .append(Component.text("Teleporting to ", NamedTextColor.GRAY))
+        .append(Component.text(portalName, NamedTextColor.LIGHT_PURPLE))
+        .append(Component.text("...", NamedTextColor.GRAY)));
   }
 
   /**
@@ -85,9 +86,14 @@ public final class MessageUtils {
    * @param seconds remaining cooldown seconds
    */
   public static void cooldown(CommandSender sender, long seconds) {
-    sender.sendMessage(PREFIX + ChatColor.YELLOW + "Please wait "
-        + ChatColor.GOLD + seconds + "s"
-        + ChatColor.YELLOW + " before teleporting again.");
+    sender.sendMessage(PREFIX
+        .append(Component.text("Please wait ", NamedTextColor.YELLOW))
+        .append(Component.text(seconds + "s", NamedTextColor.GOLD))
+        .append(Component.text(" before teleporting again.", NamedTextColor.YELLOW)));
+  }
+
+  private static Component coloredMessage(String msg, NamedTextColor color) {
+    return PREFIX.append(Component.text().color(color).append(TextUtils.fromLegacy(msg)));
   }
 
   /**

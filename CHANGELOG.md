@@ -5,6 +5,13 @@ All notable changes to Ethereal Portals will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Updated the supported server version to Paper 26.2
+- Updated the build, CI, and release toolchain to Java 25
+- Migrated deprecated inventory title and player profile APIs to their Paper 26.2 replacements
+
 ## [1.1.1] - 2025-11-19
 
 ### Changed

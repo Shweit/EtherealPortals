@@ -25,12 +25,12 @@ public final class PortalItemUtils {
   public static ItemStack createPortalItem(
       Plugin plugin, String texture, String displayName, List<String> lore) {
     // Create player head with custom texture using SkullUtils
-    ItemStack item = SkullUtils.createHead(texture, displayName);
+    ItemStack item = SkullUtils.createHead(texture, TextUtils.itemText(displayName));
     ItemMeta meta = item.getItemMeta();
 
     // Add lore if provided
     if (lore != null && !lore.isEmpty()) {
-      meta.setLore(lore);
+      meta.lore(lore.stream().map(TextUtils::itemText).toList());
     }
 
     // Add persistent data to mark this as a portal item

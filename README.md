@@ -27,8 +27,8 @@ A mystical portal plugin for Minecraft that allows players to create custom port
 
 ## Requirements
 
-- **Minecraft Version**: 1.21+ (Paper/Spigot)
-- **Java Version**: 17+
+- **Minecraft Version**: 26.2 (Paper)
+- **Java Version**: 25+
 
 ## Commands
 

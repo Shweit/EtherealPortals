@@ -1,7 +1,7 @@
 main: ${PACKAGE}.EtherealPortals
 name: ${NAME}
 version: "${VERSION}"
-api-version: "1.21.1"
+api-version: "26.2"
 author: shweit
 description: A mystical portal plugin for fast travel between locations
 website: https://github.com/shweit/EtherealPortals

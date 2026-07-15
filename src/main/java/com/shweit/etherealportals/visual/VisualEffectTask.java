@@ -3,8 +3,9 @@ package com.shweit.etherealportals.visual;
 import com.shweit.etherealportals.EtherealPortals;
 import com.shweit.etherealportals.model.PortalGroup;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.ArmorStand;
@@ -136,7 +137,7 @@ public class VisualEffectTask implements Runnable {
       String portalName, String displayText) {
     String tag = "ep_portal:" + groupName.toLowerCase() + ":" + portalName.toLowerCase();
     loc.getWorld().spawn(loc, TextDisplay.class, d -> {
-      d.text(Component.text(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + displayText));
+      d.text(Component.text(displayText, NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
       d.setBillboard(Display.Billboard.CENTER);
       d.setSeeThrough(true);
       d.setShadowed(true);
@@ -195,7 +196,7 @@ public class VisualEffectTask implements Runnable {
       as.setGravity(false);
       as.setMarker(false); // Keep hitbox so it can be damaged
       as.setInvulnerable(false); // Make sure it can be damaged
-      as.setCustomName(ChatColor.GRAY + "(Portal - Punch to break)");
+      as.customName(Component.text("(Portal - Punch to break)", NamedTextColor.GRAY));
       as.setCustomNameVisible(false); // Hidden by default, but shows on hover
       as.addScoreboardTag(tag);
     });

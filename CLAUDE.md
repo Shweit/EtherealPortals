@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-EtherealPortals is a Minecraft plugin for Paper/Spigot 1.21+ that enables mystical portal networks for fast travel. Players can organize portals into groups and teleport between them with visual effects.
+EtherealPortals is a Minecraft plugin for Paper 26.2 that enables mystical portal networks for fast travel. Players can organize portals into groups and teleport between them with visual effects.
 
 ## Build System & Commands
 
@@ -126,9 +126,9 @@ Key settings:
 
 ## Important Implementation Details
 
-- **Java Version**: Java 21 (sourceCompatibility and targetCompatibility)
-- **Minecraft Version**: Paper API 1.21.10
-- **Dependencies**: PaperLib (shaded), Mojang authlib (for GameProfile in SkullUtils)
+- **Java Version**: Java 25 (Gradle toolchain)
+- **Minecraft Version**: Paper API 26.2
+- **Dependencies**: PaperLib and bStats (shaded)
 - **Shadow JAR**: PaperLib is relocated to `shadow.io.papermc.paperlib` and minimized
 - **Plugin.yml**: Uses Gradle property expansion for NAME, VERSION, and PACKAGE
 - **Checkstyle**: Max warnings = 0 (enforced)
